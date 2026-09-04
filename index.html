@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SI-PANGKAS - Portal Pelaporan Kamtib</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans">
+
+    <!-- Navigation Header -->
+    <nav class="bg-slate-800 border-b border-slate-700 p-4">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold text-blue-400">SI-PANGKAS DITJENPAS</h1>
+                <p class="text-xs text-slate-400">Kementerian Imigrasi dan Pemasyarakatan (Kemenimipas)</p>
+            </div>
+            <span class="text-xs bg-blue-900 text-blue-200 border border-blue-700 px-3 py-1 rounded-full font-semibold">Masa Uji Coba</span>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="max-w-4xl mx-auto p-6 mt-4">
+        
+        <!-- Form Input UPT -->
+        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-2xl mb-8">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
+                <h2 class="text-lg font-bold text-slate-200">Formulir Input 15 Laporan Kamtib UPT</h2>
+                <span class="text-xs text-slate-400">Lapas / Rutan / LPKA</span>
+            </div>
+            
+            <form id="formLaporan" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-slate-300">Pilih Jenis Laporan Keamanan:</label>
+                    <select id="jenisLaporan" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition">
+                        <option value="LAPORAN_01">01. Laporan Situasi & Isi Penghuni</option>
+                        <option value="LAPORAN_02">02. Laporan Penjagaan & Regu Pengamanan</option>
+                        <option value="LAPORAN_03">03. Laporan Sarana & Prasarana Pengamanan</option>
+                        <option value="LAPORAN_04">04. Laporan Pemeliharaan Senjata & Amunisi</option>
+                        <option value="LAPORAN_05">05. Laporan Kejadian Gangguan Kamtib</option>
+                        <option value="LAPORAN_06">06. Laporan Hasil Penggeledahan / Razia</option>
+                        <option value="LAPORAN_07">07. Laporan Intelijen & Pemetaan Kerawanan</option>
+                        <option value="LAPORAN_08">08. Laporan Narapidana Risiko Tinggi (High-Risk)</option>
+                        <option value="LAPORAN_09">09. Laporan Pelaksanaan Asimilasi / Integrasi</option>
+                        <option value="LAPORAN_10">10. Laporan Mitigasi Bencana & Kebakaran</option>
+                        <option value="LAPORAN_11">11. Laporan Pengawasan Pintu Utama (P2U)</option>
+                        <option value="LAPORAN_12">12. Laporan Pengawalan & Pemindahan WBP</option>
+                        <option value="LAPORAN_13">13. Laporan Evaluasi Kepatuhan SOP Kamtib</option>
+                        <option value="LAPORAN_14">14. Laporan Penindakan & Tanggap Darurat</option>
+                        <option value="LAPORAN_15">15. Laporan Rekapitulasi Bulanan Kamtib Opsnal</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-slate-300">Ringkasan Narasi / Uraian Laporan Bulanan:</label>
+                    <textarea id="uraianLaporan" rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Ketik ringkasan laporan di sini..."></textarea>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-lg shadow-blue-600/30">
+                    Kirim Laporan ke Database Supabase
+                </button>
+            </form>
+            
+            <p id="pesanStatus" class="mt-4 p-3 rounded-lg text-sm font-medium text-center hidden"></p>
+        </div>
+
+    </div>
+
+    <!-- Script Integrasi Supabase -->
+    <script>
+        // Kunci Akses Supabase Otomatis Terpasang
+        const SUPABASE_URL = "https://pqzowbxuezamklahzhjt.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxem93Ynh1ZXphbWtsYWh6aGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MTU3NjMsImV4cCI6MjEwNDA5MTc2M30.LkiSZIj1RR-3MVbvW0PqLejdqhjkF5g7IvBneTtQcRk";
+
+        // Inisialisasi Supabase Client
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Prosessor Form Submission
+        document.getElementById('formLaporan').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const jenis = document.getElementById('jenisLaporan').value;
+            const uraian = document.getElementById('uraianLaporan').value;
+            const pesan = document.getElementById('pesanStatus');
+
+            if (!uraian.trim()) {
+                pesan.className = "mt-4 p-3 rounded-lg text-sm font-medium text-center bg-yellow-900/50 text-yellow-300 border border-yellow-700";
+                pesan.innerText = "Harap isi uraian laporan sebelum mengirim!";
+                pesan.classList.remove('hidden');
+                return;
+            }
+
+            pesan.className = "mt-4 p-3 rounded-lg text-sm font-medium text-center bg-blue-900/50 text-blue-200 border border-blue-700";
+            pesan.innerText = "Mengirim data ke database Supabase...";
+            pesan.classList.remove('hidden');
+
+            // Insert Data ke Tabel laporan_kamtib
+            const { data, error } = await _supabase
+                .from('laporan_kamtib')
+                .insert([
+                    { 
+                        jenis_laporan: jenis, 
+                        isi_data_jsonb: { ringkasan: uraian, kementerian: "Kemenimipas" },
+                        status: 'DRAFT'
+                    }
+                ]);
+
+            if (error) {
+                pesan.className = "mt-4 p-3 rounded-lg text-sm font-medium text-center bg-red-900/50 text-red-300 border border-red-700";
+                pesan.innerText = "Gagal mengirim data: " + error.message;
+            } else {
+                pesan.className = "mt-4 p-3 rounded-lg text-sm font-medium text-center bg-emerald-900/50 text-emerald-300 border border-emerald-700";
+                pesan.innerText = "Berhasil! Laporan telah tersimpan secara resmi di Database Supabase.";
+                document.getElementById('uraianLaporan').value = '';
+            }
+        });
+    </script>
+</body>
+</html>
