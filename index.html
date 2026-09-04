@@ -42,11 +42,11 @@
     <!-- CONTAINER UTAMA -->
     <div class="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
 
-        <!-- ================= 1. MODAL LOGIN SISTEM ================= -->
-        <div id="view-login" class="max-w-md mx-auto my-6 bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-4">
+        <!-- ================= 1. MODAL LOGIN SISTEM (PENCARIAN OTOMATIS) ================= -->
+        <div id="view-login" class="max-w-md mx-auto my-6 bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="text-center border-b border-slate-700 pb-3">
                 <h2 class="text-xl font-bold text-blue-400">Portal Masuk SI-PANGKAS</h2>
-                <p class="text-xs text-slate-400 mt-1">Akses Terisolasi Masing-Masing UPT / Kanwil / Ditjenpas</p>
+                <p class="text-xs text-slate-400 mt-1">Sistem Pencarian Otomatis 613 UPT & 33 Kanwil</p>
             </div>
 
             <form id="formLogin" onsubmit="handleLogin(event)" class="space-y-3">
@@ -60,18 +60,22 @@
                     </select>
                 </div>
 
+                <!-- Input Cari Kanwil -->
                 <div id="divKanwilGroup">
-                    <label class="block text-xs font-semibold mb-1 text-slate-300">Pilih Kantor Wilayah (33 Kanwil):</label>
-                    <select id="loginKanwil" onchange="onKanwilChange()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 outline-none focus:ring-2 focus:ring-blue-500 max-h-40">
+                    <label class="block text-xs font-semibold mb-1 text-slate-300">Cari Kantor Wilayah (33 Kanwil):</label>
+                    <input type="text" id="loginKanwilInput" list="kanwilDatalist" onchange="onKanwilChange()" oninput="onKanwilChange()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ketik nama Kanwil (misal: DKI Jakarta)..." value="DKI Jakarta">
+                    <datalist id="kanwilDatalist">
                         <!-- Populated dynamically via JS -->
-                    </select>
+                    </datalist>
                 </div>
 
+                <!-- Input Cari UPT -->
                 <div id="divUptGroup">
-                    <label class="block text-xs font-semibold mb-1 text-slate-300">Pilih UPT Pemasyarakatan (613 UPT):</label>
-                    <select id="loginUpt" onchange="generateGeneratedEmail()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 outline-none focus:ring-2 focus:ring-blue-500 max-h-40">
+                    <label class="block text-xs font-semibold mb-1 text-slate-300">Cari UPT Pemasyarakatan (613 UPT):</label>
+                    <input type="text" id="loginUptInput" list="uptDatalist" onchange="generateGeneratedEmail()" oninput="generateGeneratedEmail()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ketik nama Lapas/Rutan (misal: Cipinang)...">
+                    <datalist id="uptDatalist">
                         <!-- Populated dynamically via JS -->
-                    </select>
+                    </datalist>
                 </div>
 
                 <div>
@@ -226,19 +230,10 @@
 
                         <div>
                             <label class="block text-slate-400 mb-1">Filter Rentang Waktu:</label>
-                            <select id="filterPeriodeMode" onchange="onPeriodeModeChange()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 outline-none">
+                            <select id="filterPeriodeMode" onchange="renderSajianDashboard()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 outline-none">
                                 <option value="KESELURUHAN">Keseluruhan Waktu</option>
                                 <option value="BULAN">Per Bulan</option>
-                                <option value="TRIWULAN">Triwulan (Q1 - Q4)</option>
-                                <option value="SEMESTER">Semester (S1 / S2)</option>
                                 <option value="TAHUN">Per Tahun</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-slate-400 mb-1">Pilihan Waktu Spesifik:</label>
-                            <select id="filterSubPeriode" onchange="renderSajianDashboard()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 outline-none">
-                                <option value="ALL">Semua Waktu</option>
                             </select>
                         </div>
 
@@ -294,7 +289,6 @@
 
     <!-- SCRIPT APPLICATION LOGIC -->
     <script>
-        // DAFTAR LENGKAP 33 KANWIL SE-INDONESIA
         const ALL_KANWILS = [
             'Aceh', 'Bali', 'Banten', 'Bengkulu', 'D. I. Yogyakarta', 'DKI Jakarta', 
             'Gorontalo', 'Jambi', 'Jawa Barat', 'Jawa Tengah', 'Jawa Timur', 
@@ -304,6 +298,13 @@
             'Sulawesi Barat', 'Sulawesi Selatan', 'Sulawesi Tengah', 'Sulawesi Tenggara', 
             'Sulawesi Utara', 'Sumatera Barat', 'Sumatera Selatan', 'Sumatera Utara'
         ];
+
+        const SAMPLE_UPTS = {
+            'DKI Jakarta': ['LAPAS KELAS I CIPINANG', 'LAPAS KELAS IIA NARKOTIKA JAKARTA', 'RUTAN KELAS I JAKARTA PUSAT', 'BAPAS KELAS I JAKARTA BARAT', 'LPKA KELAS II JAKARTA'],
+            'Jawa Barat': ['LAPAS KELAS I BANDUNG', 'LAPAS KELAS I CIREBON', 'LAPAS KELAS IIA BEKASI', 'LAPAS KELAS IIA BOGOR', 'RUTAN KELAS I DEPOK'],
+            'Jawa Tengah': ['LAPAS KELAS I SEMARANG', 'LAPAS HIGH RISK NUSAKAMBANGAN', 'LAPAS KELAS IIA MAGELANG', 'BAPAS KELAS I SURAKARTA'],
+            'Jawa Timur': ['LAPAS KELAS I SURABAYA', 'LAPAS KELAS I MALANG', 'RUTAN KELAS I SURABAYA', 'LAPAS KELAS IIA KEDIRI']
+        };
 
         const SUPABASE_URL = "https://pqzowbxuezamklahzhjt.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxem93Ynh1ZXphbWtsYWh6aGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MTU3NjMsImV4cCI6MjEwNDA5MTc2M30.LkiSZIj1RR-3MVbvW0PqLejdqhjkF5g7IvBneTtQcRk";
@@ -319,14 +320,13 @@
         });
 
         function initLoginDropdowns() {
-            const selectKanwil = document.getElementById('loginKanwil');
-            selectKanwil.innerHTML = '';
+            const kanwilDatalist = document.getElementById('kanwilDatalist');
+            kanwilDatalist.innerHTML = '';
             
             ALL_KANWILS.forEach(k => {
                 const opt = document.createElement('option');
                 opt.value = k;
-                opt.innerText = "Kanwil " + k;
-                selectKanwil.appendChild(opt);
+                kanwilDatalist.appendChild(opt);
             });
 
             onKanwilChange();
@@ -351,11 +351,12 @@
         }
 
         function onKanwilChange() {
-            const kanwil = document.getElementById('loginKanwil').value;
-            const selectUpt = document.getElementById('loginUpt');
-            selectUpt.innerHTML = '';
+            const kanwil = document.getElementById('loginKanwilInput').value || 'DKI Jakarta';
+            const uptDatalist = document.getElementById('uptDatalist');
+            const uptInput = document.getElementById('loginUptInput');
+            uptDatalist.innerHTML = '';
 
-            const sampleUpts = [
+            const uptList = SAMPLE_UPTS[kanwil] || [
                 `LAPAS KELAS I ${kanwil.toUpperCase()}`,
                 `LAPAS KELAS IIA ${kanwil.toUpperCase()}`,
                 `RUTAN KELAS I ${kanwil.toUpperCase()}`,
@@ -363,20 +364,23 @@
                 `LPKA KELAS II ${kanwil.toUpperCase()}`
             ];
 
-            sampleUpts.forEach(u => {
+            uptList.forEach(u => {
                 const opt = document.createElement('option');
                 opt.value = u;
-                opt.innerText = u;
-                selectUpt.appendChild(opt);
+                uptDatalist.appendChild(opt);
             });
+
+            if (!uptInput.value || !uptList.includes(uptInput.value)) {
+                uptInput.value = uptList[0];
+            }
 
             generateGeneratedEmail();
         }
 
         function generateGeneratedEmail() {
             const role = document.getElementById('loginRole').value;
-            const kanwil = document.getElementById('loginKanwil').value || 'pusat';
-            const upt = document.getElementById('loginUpt').value || '';
+            const kanwil = document.getElementById('loginKanwilInput').value || 'pusat';
+            const upt = document.getElementById('loginUptInput').value || '';
             const emailInput = document.getElementById('loginEmail');
 
             const cleanSlug = (text) => text.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -395,8 +399,8 @@
         function handleLogin(e) {
             e.preventDefault();
             const role = document.getElementById('loginRole').value;
-            const kanwil = document.getElementById('loginKanwil').value;
-            const upt = document.getElementById('loginUpt').value;
+            const kanwil = document.getElementById('loginKanwilInput').value;
+            const upt = document.getElementById('loginUptInput').value;
             const email = document.getElementById('loginEmail').value;
             const pwd = document.getElementById('loginPassword').value;
 
@@ -632,10 +636,6 @@
                 opt.innerText = "Kanwil " + k;
                 select.appendChild(opt);
             });
-        }
-
-        function onPeriodeModeChange() {
-            renderSajianDashboard();
         }
 
         async function renderSajianDashboard() {
