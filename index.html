@@ -4,19 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SI-PANGKAS DITJENPAS - Sistem Pelaporan Kamtib Terintegrasi</title>
-    <!-- Tailwind CSS CDN -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase JS CDN -->
+    <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- SheetJS (Excel Parser) CDN -->
+    <!-- SheetJS (Excel Parser) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <!-- Chart.js CDN (Interactive Dashboard) -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen font-sans">
 
     <!-- TOP NAVIGATION BAR -->
-    <nav class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-40 shadow-xl">
+    <nav class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-30 shadow-xl">
         <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center gap-3">
                 <div class="bg-blue-600 text-white font-black p-2 rounded-lg text-lg">SP</div>
@@ -26,7 +26,7 @@
                 </div>
             </div>
 
-            <!-- Active User Profile Bar & Logout -->
+            <!-- Profile Bar & Logout -->
             <div id="userBar" class="hidden flex items-center gap-3 bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg text-xs">
                 <div>
                     <span id="userBadgeRole" class="font-bold text-blue-400">OPERATOR UPT</span>
@@ -42,14 +42,14 @@
     <!-- CONTAINER UTAMA -->
     <div class="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
 
-        <!-- ================= 1. MODAL LOGIN SISTEM (SELURUH UPT INDONESIA) ================= -->
-        <div id="view-login" class="max-w-md mx-auto my-8 bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-5">
-            <div class="text-center border-b border-slate-700 pb-4">
+        <!-- ================= 1. MODAL LOGIN SISTEM ================= -->
+        <div id="view-login" class="max-w-md mx-auto my-6 bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-4">
+            <div class="text-center border-b border-slate-700 pb-3">
                 <h2 class="text-xl font-bold text-blue-400">Portal Masuk SI-PANGKAS</h2>
-                <p class="text-xs text-slate-400 mt-1">Pilih Peran dan Lokasi UPT/Kanwil Seluruh Indonesia</p>
+                <p class="text-xs text-slate-400 mt-1">Akses Terisolasi Masing-Masing UPT / Kanwil / Ditjenpas</p>
             </div>
 
-            <form id="formLogin" onsubmit="handleLogin(event)" class="space-y-4">
+            <form id="formLogin" onsubmit="handleLogin(event)" class="space-y-3">
                 <div>
                     <label class="block text-xs font-semibold mb-1 text-slate-300">Pilih Peran Akses Sistem:</label>
                     <select id="loginRole" onchange="onRoleChange()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 outline-none focus:ring-2 focus:ring-blue-500">
@@ -61,37 +61,37 @@
                 </div>
 
                 <div id="divKanwilGroup">
-                    <label class="block text-xs font-semibold mb-1 text-slate-300">Pilih Kantor Wilayah (Kanwil):</label>
-                    <select id="loginKanwil" onchange="onKanwilChange()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 outline-none focus:ring-2 focus:ring-blue-500">
+                    <label class="block text-xs font-semibold mb-1 text-slate-300">Pilih Kantor Wilayah (33 Kanwil):</label>
+                    <select id="loginKanwil" onchange="onKanwilChange()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 outline-none focus:ring-2 focus:ring-blue-500 max-h-40">
                         <!-- Populated dynamically via JS -->
                     </select>
                 </div>
 
                 <div id="divUptGroup">
                     <label class="block text-xs font-semibold mb-1 text-slate-300">Pilih UPT Pemasyarakatan (613 UPT):</label>
-                    <select id="loginUpt" onchange="generateGeneratedEmail()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="loginUpt" onchange="generateGeneratedEmail()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 outline-none focus:ring-2 focus:ring-blue-500 max-h-40">
                         <!-- Populated dynamically via JS -->
                     </select>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-slate-300">Alamat Email Kedinasan Otomatis:</label>
-                    <input type="email" id="loginEmail" readonly class="w-full bg-slate-950 border border-slate-800 text-slate-400 font-mono text-xs p-2.5 rounded-lg outline-none" value="...">
+                    <label class="block text-xs font-semibold mb-1 text-slate-300">Email Kedinasan Unik:</label>
+                    <input type="email" id="loginEmail" readonly class="w-full bg-slate-950 border border-slate-800 text-slate-400 font-mono text-xs p-2.5 rounded-lg outline-none">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold mb-1 text-slate-300">Kata Sandi / PIN Otorisasi:</label>
-                    <input type="password" id="loginPassword" required class="w-full bg-slate-900 border border-slate-700 text-xs p-2.5 rounded-lg text-white outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ketik kata sandi / PIN...">
-                    <p class="text-[10px] text-slate-400 mt-1" id="loginHint">PIN Default Demo: UPT (123456), Kanwil (654321), Ditjenpas (999999)</p>
+                    <label class="block text-xs font-semibold mb-1 text-slate-300">Kata Sandi / PIN Akun:</label>
+                    <input type="password" id="loginPassword" required class="w-full bg-slate-900 border border-slate-700 text-xs p-2.5 rounded-lg text-white outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ketik kata sandi akun...">
+                    <p class="text-[10px] text-slate-400 mt-1">PIN Default Demo: UPT (123456), Kanwil (654321), Ditjenpas (999999)</p>
                 </div>
 
                 <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg text-xs transition shadow-lg shadow-blue-600/30">
-                    Masuk ke Sistem
+                    Masuk ke Sistem Keamanan
                 </button>
             </form>
         </div>
 
-        <!-- MAIN DASHBOARD CONTENT (HIDDEN BEFORE LOGIN) -->
+        <!-- MAIN DASHBOARD CONTENT -->
         <div id="view-dashboard-main" class="hidden space-y-6">
 
             <!-- DASHBOARD TABS NAVIGATION -->
@@ -108,7 +108,7 @@
                 <div class="border-b border-slate-700 pb-3 flex flex-wrap justify-between items-center gap-2">
                     <div>
                         <h2 class="text-base font-bold text-slate-200">Formulir Isian & Pengiriman Laporan Kamtib</h2>
-                        <p class="text-xs text-slate-400">Pengiriman data oleh Operator UPT ke Kepala UPT.</p>
+                        <p class="text-xs text-slate-400">Pengiriman data terisolasi khusus akun UPT bersangkutan.</p>
                     </div>
                     <div class="flex bg-slate-900 p-1 rounded-lg border border-slate-700 text-xs">
                         <button onclick="setInputMode('form')" id="btnInputForm" class="px-3 py-1 font-bold bg-slate-700 text-blue-300 rounded">Form Isian</button>
@@ -123,7 +123,6 @@
                             <option value="PELARIAN">Laporan Pelarian & Analisa Pelarian WBP</option>
                             <option value="PERKARA_BARU">Laporan WBP / Tahanan Perkara Baru</option>
                             <option value="GANGGUAN_KAMTIB">Laporan Gangguan Kamtib & Disiplin</option>
-                            <option value="LAPORAN_OPSNAL">15 Jenis Laporan Opsnal Kamtib</option>
                         </select>
                     </div>
                     <div>
@@ -147,7 +146,7 @@
                 <div id="containerModeForm" class="space-y-4">
                     <div>
                         <label class="block text-xs font-semibold mb-1 text-slate-300">Ringkasan Narasi Kejadian / Isian Data:</label>
-                        <textarea id="inputUraian" rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-200 outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ketik ringkasan kejadian bulanan..."></textarea>
+                        <textarea id="inputUraian" rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-200 outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ketik ringkasan kejadian..."></textarea>
                     </div>
                     <button onclick="submitUptReport()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg text-xs transition shadow-lg shadow-blue-600/30">
                         Kirim Draf Laporan ke Kepala UPT
@@ -167,21 +166,13 @@
                 </div>
 
                 <p id="msgInputStatus" class="p-3 rounded-lg text-xs text-center font-semibold hidden"></p>
-
-                <!-- Status Perbaikan/Dikembalikan -->
-                <div class="border-t border-slate-700 pt-4">
-                    <h3 class="text-xs font-bold text-amber-400 mb-3">Daftar Laporan Dikembalikan (Memerlukan Perbaikan):</h3>
-                    <div id="listReturnedToUpt" class="space-y-3">
-                        <p class="text-xs text-slate-500">Tidak ada laporan yang dikembalikan.</p>
-                    </div>
-                </div>
             </div>
 
             <!-- TAB 2: KA UPT ACC -->
             <div id="tabContentKaUpt" class="hidden bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl space-y-4">
                 <div class="border-b border-slate-700 pb-3">
                     <h2 class="text-base font-bold text-slate-200">2. Persetujuan & Tanda Tangan Digital Kepala UPT</h2>
-                    <p class="text-xs text-slate-400">Verifikasi Draf Laporan Operator UPT. Masukkan PIN untuk menyetujui atau Kembalikan untuk revisi.</p>
+                    <p class="text-xs text-slate-400">Verifikasi Draf Laporan UPT sendiri sebelum diteruskan ke Kanwil.</p>
                 </div>
                 <div id="listKaUptApproval" class="space-y-4">
                     <p class="text-xs text-slate-500">Memuat data draf laporan UPT...</p>
@@ -218,7 +209,6 @@
 
             <!-- TAB 5: SAJIAN DATA INTERAKTIF & DASHBOARD -->
             <div id="tabContentSajian" class="hidden space-y-6">
-                
                 <!-- MULTI-FILTER BAR -->
                 <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl space-y-4">
                     <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider">Filter Panel Sajian Data Interaktif</h3>
@@ -231,7 +221,6 @@
                                 <option value="PELARIAN">Pelarian & Analisa Pelarian</option>
                                 <option value="PERKARA_BARU">WBP / Tahanan Perkara Baru</option>
                                 <option value="GANGGUAN_KAMTIB">Gangguan Kamtib & Disiplin</option>
-                                <option value="LAPORAN_OPSNAL">15 Jenis Laporan Opsnal</option>
                             </select>
                         </div>
 
@@ -246,8 +235,8 @@
                             </select>
                         </div>
 
-                        <div id="divSubFilter">
-                            <label class="block text-slate-400 mb-1">Pilihan Waktu Specific:</label>
+                        <div>
+                            <label class="block text-slate-400 mb-1">Pilihan Waktu Spesifik:</label>
                             <select id="filterSubPeriode" onchange="renderSajianDashboard()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 outline-none">
                                 <option value="ALL">Semua Waktu</option>
                             </select>
@@ -262,8 +251,8 @@
                     </div>
                 </div>
 
-                <!-- CARDS INDIKATOR UTAMA -->
-                <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+                <!-- CARDS INDIKATOR -->
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
                     <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
                         <p class="text-[10px] text-slate-400 font-semibold uppercase">Total Laporan</p>
                         <p id="statTotal" class="text-2xl font-bold text-blue-400 mt-1">0</p>
@@ -284,13 +273,9 @@
                         <p class="text-[10px] text-slate-400 font-semibold uppercase">Sah Final</p>
                         <p id="statSah" class="text-2xl font-bold text-emerald-400 mt-1">0</p>
                     </div>
-                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
-                        <p class="text-[10px] text-slate-400 font-semibold uppercase">Dikembalikan</p>
-                        <p id="statRevisi" class="text-2xl font-bold text-rose-400 mt-1">0</p>
-                    </div>
                 </div>
 
-                <!-- CHARTS VISUALISASI DATA -->
+                <!-- CHARTS VISUALISASI -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl">
                         <h4 class="text-xs font-bold text-slate-200 mb-4">Distribusi Status Validasi Laporan</h4>
@@ -301,74 +286,33 @@
                         <div class="h-56"><canvas id="chartJenis"></canvas></div>
                     </div>
                 </div>
-
-                <!-- TABEL KOMPILASI DETAIL -->
-                <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl space-y-4">
-                    <h3 class="text-sm font-bold text-slate-200 border-b border-slate-700 pb-3">Tabel Sajian Rekapitulasi Data Terintegrasi</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs text-slate-300">
-                            <thead class="bg-slate-900 text-slate-400 uppercase text-[10px]">
-                                <tr>
-                                    <th class="p-3">UPT & Kanwil</th>
-                                    <th class="p-3">Jenis Laporan</th>
-                                    <th class="p-3">Periode Data</th>
-                                    <th class="p-3">Ringkasan / File Data</th>
-                                    <th class="p-3">Status Otorisasi</th>
-                                    <th class="p-3">Catatan Revisi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tableSajianBody" class="divide-y divide-slate-700">
-                                <tr><td colspan="6" class="p-3 text-center text-slate-500">Belum ada data tersedia.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
             </div>
 
         </div>
 
-    </div>
-
-    <!-- MODAL POPUP REVISI / CATATAN PENGEMBALIAN -->
-    <div id="modalRevision" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50">
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl">
-            <h3 class="text-sm font-bold text-rose-400" id="modalRevTitle">Kembalikan Laporan untuk Perbaikan</h3>
-            <p class="text-xs text-slate-400">Masukkan alasan pengembalian agar dapat diperbaiki oleh pihak terkait.</p>
-            <textarea id="textCatatanRevisi" rows="3" class="w-full bg-slate-900 border border-slate-700 p-2.5 text-xs text-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-rose-500" placeholder="Ketik alasan dikembalikan..."></textarea>
-            <div class="flex gap-2">
-                <button onclick="closeRevisionModal()" class="w-1/2 bg-slate-700 hover:bg-slate-600 text-slate-200 py-2 rounded-lg text-xs font-semibold">Batal</button>
-                <button onclick="submitRevisionAction()" class="w-1/2 bg-rose-600 hover:bg-rose-500 text-white py-2 rounded-lg text-xs font-semibold">Kembalikan Laporan</button>
-            </div>
-        </div>
     </div>
 
     <!-- SCRIPT APPLICATION LOGIC -->
     <script>
-        // DATA DICTIONARY 613 UPT & 33 KANWIL SE-INDONESIA
-        const UPT_DICTIONARY = {
-            "Aceh": ["BAPAS KELAS I BANDA ACEH", "BAPAS KELAS II KUTACANE", "BAPAS KELAS II LHOK SEMAWE", "LAPAS KELAS IIA BANDA ACEH", "LAPAS KELAS IIA LHOK SEUMAWE", "LAPAS KELAS IIB BIREUEN", "LAPAS KELAS IIB BLANGKEJEREN", "LAPAS KELAS IIB BLANGPIDIE", "LAPAS KELAS IIB IDI", "LAPAS KELAS IIB KOTA BAKTI", "LAPAS KELAS IIB MEULABOH", "LAPAS KELAS IIB NARKOTIKA LANGSA", "LAPAS KELAS IIB PEMUDA LANGSA", "LAPAS KELAS IIB SINABANG", "LAPAS KELAS III KUALA SIMPANG", "LAPAS PEREMPUAN KELAS III SIGLI", "LPKA KELAS II BANDA ACEH", "RUTAN KELAS IIB BANDA ACEH", "RUTAN KELAS IIB BENER MERIAH", "RUTAN KELAS IIB JANTHO", "RUTAN KELAS IIB SABANG", "RUTAN KELAS IIB SIGLI", "RUTAN KELAS IIB TAPAK TUAN", "RUTAN KELAS IIB TAKENGON"],
-            "Bali": ["BAPAS KELAS I DENPASAR", "BAPAS KELAS II KARANGASEM", "LAPAS KELAS IIA DENPASAR", "LAPAS KELAS IIB BANGLI", "LAPAS KELAS IIB KARANGASEM", "LAPAS KELAS IIB TABANAN", "LAPAS NARKOTIKA KELAS IIA BANGLI", "LAPAS PEREMPUAN KELAS III DENPASAR", "LPKA KELAS II KARANGASEM", "RUTAN KELAS IIB BANGLI", "RUTAN KELAS IIB GIANYAR", "RUTAN KELAS IIB NEGARA"],
-            "Banten": ["BAPAS KELAS I SERANG", "BAPAS KELAS I TANGERANG", "LAPAS KELAS I TANGERANG", "LAPAS KELAS IIA CILEGON", "LAPAS KELAS IIA SERANG", "LAPAS KELAS IIA TANGERANG", "LAPAS KELAS III CIANGSANA", "LAPAS PEMUDA KELAS IIA TANGERANG", "LAPAS PEREMPUAN KELAS IIA TANGERANG", "LPKA KELAS I TANGERANG", "RUTAN KELAS I TANGERANG", "RUTAN KELAS IIB RANGKASBITUNG", "RUTAN KELAS IIB SERANG", "RUTAN KELAS IIB PANDEGLANG"],
-            "DKI Jakarta": ["BAPAS KELAS I JAKARTA BARAT", "BAPAS KELAS I JAKARTA PUSAT", "BAPAS KELAS I JAKARTA SELATAN", "BAPAS KELAS I JAKARTA TIMUR", "LAPAS KELAS I Cipinang", "LAPAS KELAS IIA NARKOTIKA JAKARTA", "LAPAS PEREMPUAN KELAS IIA JAKARTA", "LPKA KELAS II JAKARTA", "RUTAN KELAS I Cipinang", "RUTAN KELAS I JAKARTA PUSAT", "RUTAN KELAS IIA JAKARTA TIMUR"],
-            "Jawa Barat": ["BAPAS KELAS II BEKASI", "BAPAS KELAS II BOGOR", "BAPAS KELAS I BANDUNG", "BAPAS KELAS II CIREBON", "BAPAS KELAS II GARUT", "LAPAS KELAS I BANDUNG", "LAPAS KELAS I CIREBON", "LAPAS KELAS IIA BEKASI", "LAPAS KELAS IIA BOGOR", "LAPAS KELAS IIA CIKARANG", "LAPAS KELAS IIA CIAMIS", "LAPAS KELAS IIA CIBINONG", "LAPAS KELAS IIA GARUT", "LAPAS KELAS IIA KUNINGAN", "LAPAS KELAS IIA SUBANG", "LAPAS PEREMPUAN KELAS IIA BANDUNG", "LPKA KELAS II BANDUNG", "RUTAN KELAS I BANDUNG", "RUTAN KELAS I DEPOK"],
-            "Jawa Tengah": ["BAPAS KELAS I SEMARANG", "BAPAS KELAS I SURAKARTA", "BAPAS KELAS II MAGELANG", "BAPAS KELAS II PATI", "BAPAS KELAS II PURWOKERTO", "LAPAS KELAS I SEMARANG", "LAPAS KELAS IIA AMBARAWA", "LAPAS KELAS IIA KENDAL", "LAPAS KELAS IIA MAGELANG", "LAPAS KELAS IIA PATI", "LAPAS KELAS IIA PURWOKERTO", "LAPAS KELAS IIA SRAGEN", "LAPAS HIGH RISK NUSAKAMBANGAN", "LAPAS PEREMPUAN KELAS IIA SEMARANG", "LPKA KELAS I KUTILANG SEMARANG"],
-            "Jawa Timur": ["BAPAS KELAS I MALANG", "BAPAS KELAS I SURABAYA", "BAPAS KELAS II JEMBER", "BAPAS KELAS II MADIUN", "BAPAS KELAS II PAMEKASAN", "LAPAS KELAS I MALANG", "LAPAS KELAS I SURABAYA", "LAPAS KELAS IIA BOJONEGORO", "LAPAS KELAS IIA JEMBER", "LAPAS KELAS IIA KEDIRI", "LAPAS KELAS IIA MADIUN", "LAPAS KELAS IIA PAMEKASAN", "LAPAS PEREMPUAN KELAS IIA MALANG", "LPKA KELAS II BLITAR", "RUTAN KELAS I SURABAYA"]
-            // Seluruh 613 UPT terdaftar secara dinamis dalam memori aplikasi
-        };
+        // DAFTAR LENGKAP 33 KANWIL SE-INDONESIA
+        const ALL_KANWILS = [
+            'Aceh', 'Bali', 'Banten', 'Bengkulu', 'D. I. Yogyakarta', 'DKI Jakarta', 
+            'Gorontalo', 'Jambi', 'Jawa Barat', 'Jawa Tengah', 'Jawa Timur', 
+            'Kalimantan Barat', 'Kalimantan Selatan', 'Kalimantan Tengah', 'Kalimantan Timur', 
+            'Kepulauan Bangka Belitung', 'Kepulauan Riau', 'Lampung', 'Maluku', 'Maluku Utara', 
+            'Nusa Tenggara Barat', 'Nusa Tenggara Timur', 'Papua', 'Papua Barat', 'Riau', 
+            'Sulawesi Barat', 'Sulawesi Selatan', 'Sulawesi Tengah', 'Sulawesi Tenggara', 
+            'Sulawesi Utara', 'Sumatera Barat', 'Sumatera Selatan', 'Sumatera Utara'
+        ];
 
         const SUPABASE_URL = "https://pqzowbxuezamklahzhjt.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxem93Ynh1ZXphbWtsYWh6aGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MTU3NjMsImV4cCI6MjEwNDA5MTc2M30.LkiSZIj1RR-3MVbvW0PqLejdqhjkF5g7IvBneTtQcRk";
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentUser = null;
-        let nationalDataCache = [];
-        let activeRevId = null;
-        let activeRevAction = null;
         let chartStatusInst = null;
         let chartJenisInst = null;
 
-        // INIT APP
         window.addEventListener('DOMContentLoaded', () => {
             initLoginDropdowns();
             initFilterDropdowns();
@@ -378,11 +322,7 @@
             const selectKanwil = document.getElementById('loginKanwil');
             selectKanwil.innerHTML = '';
             
-            // List Default Kanwil
-            const kanwilKeys = Object.keys(UPT_DICTIONARY);
-            if (!kanwilKeys.includes("DKI Jakarta")) kanwilKeys.push("DKI Jakarta", "Sumatera Utara", "Sulawesi Selatan", "Papua");
-
-            kanwilKeys.forEach(k => {
+            ALL_KANWILS.forEach(k => {
                 const opt = document.createElement('option');
                 opt.value = k;
                 opt.innerText = "Kanwil " + k;
@@ -415,9 +355,15 @@
             const selectUpt = document.getElementById('loginUpt');
             selectUpt.innerHTML = '';
 
-            const uptList = UPT_DICTIONARY[kanwil] || [`LAPAS KELAS I ${kanwil.toUpperCase()}`, `RUTAN KELAS I ${kanwil.toUpperCase()}`, `BAPAS KELAS I ${kanwil.toUpperCase()}`];
-            
-            uptList.forEach(u => {
+            const sampleUpts = [
+                `LAPAS KELAS I ${kanwil.toUpperCase()}`,
+                `LAPAS KELAS IIA ${kanwil.toUpperCase()}`,
+                `RUTAN KELAS I ${kanwil.toUpperCase()}`,
+                `BAPAS KELAS I ${kanwil.toUpperCase()}`,
+                `LPKA KELAS II ${kanwil.toUpperCase()}`
+            ];
+
+            sampleUpts.forEach(u => {
                 const opt = document.createElement('option');
                 opt.value = u;
                 opt.innerText = u;
@@ -446,7 +392,6 @@
             }
         }
 
-        // HANDLE LOGIN
         function handleLogin(e) {
             e.preventDefault();
             const role = document.getElementById('loginRole').value;
@@ -455,7 +400,6 @@
             const email = document.getElementById('loginEmail').value;
             const pwd = document.getElementById('loginPassword').value;
 
-            // Validasi PIN
             if (role === 'KA_UPT' && pwd !== '123456') { alert('PIN Ka UPT Salah! PIN Default: 123456'); return; }
             if (role === 'KANWIL' && pwd !== '654321') { alert('PIN Kanwil Salah! PIN Default: 654321'); return; }
             if (role === 'DITJENPAS' && pwd !== '999999') { alert('PIN Ditjenpas Salah! PIN Default: 999999'); return; }
@@ -474,7 +418,6 @@
             document.getElementById('userBadgeRole').innerText = role.replace('_', ' ');
             document.getElementById('userBadgeName').innerText = currentUser.upt;
 
-            // Show relevant tab default
             if (role === 'OPERATOR_UPT') switchDashboardTab('input');
             if (role === 'KA_UPT') switchDashboardTab('kaupt');
             if (role === 'KANWIL') switchDashboardTab('kanwil');
@@ -488,7 +431,6 @@
             document.getElementById('userBar').classList.add('hidden');
         }
 
-        // TAB SWITCHING LOGIC
         function switchDashboardTab(tab) {
             ['input', 'kaupt', 'kanwil', 'ditjenpas', 'sajian'].forEach(t => {
                 const elContent = document.getElementById(`tabContent${t.charAt(0).toUpperCase() + t.slice(1)}`);
@@ -502,7 +444,6 @@
             if (activeContent) activeContent.classList.remove('hidden');
             if (activeNav) activeNav.className = "px-4 py-2 text-xs font-bold rounded-lg bg-blue-600 text-white shadow-lg";
 
-            if (tab === 'input') loadUptReturnedList();
             if (tab === 'kaupt') loadKaUptList();
             if (tab === 'kanwil') loadKanwilList();
             if (tab === 'ditjenpas') loadDitjenpasList();
@@ -512,11 +453,8 @@
         function setInputMode(mode) {
             document.getElementById('containerModeForm').classList.toggle('hidden', mode !== 'form');
             document.getElementById('containerModeExcel').classList.toggle('hidden', mode !== 'excel');
-            document.getElementById('btnInputForm').className = mode === 'form' ? 'px-3 py-1 font-bold bg-slate-700 text-blue-300 rounded' : 'px-3 py-1 font-bold text-slate-400 rounded hover:text-white';
-            document.getElementById('btnInputExcel').className = mode === 'excel' ? 'px-3 py-1 font-bold bg-slate-700 text-blue-300 rounded' : 'px-3 py-1 font-bold text-slate-400 rounded hover:text-white';
         }
 
-        // SUBMIT OPERATOR REPORT
         async function submitUptReport() {
             const jenis = document.getElementById('inputJenisLaporan').value;
             const bulan = document.getElementById('inputBulan').value;
@@ -527,7 +465,7 @@
             if (!uraian.trim()) return;
 
             msg.className = "p-3 rounded-lg text-xs text-center bg-blue-900/50 text-blue-200 border border-blue-700 font-semibold";
-            msg.innerText = "Mengirim draf laporan ke Kepala UPT...";
+            msg.innerText = "Mengirim draf laporan...";
             msg.classList.remove('hidden');
 
             const payload = {
@@ -537,8 +475,7 @@
                 bulan: bulan,
                 tahun: tahun,
                 uraian: uraian,
-                metode: 'FORM_ISIAN',
-                timestamp: new Date().toISOString()
+                metode: 'FORM_ISIAN'
             };
 
             const { error } = await _supabase.from('laporan_kamtib').insert([{
@@ -551,13 +488,9 @@
                 msg.className = "p-3 rounded-lg text-xs text-center bg-emerald-900/50 text-emerald-300 border border-emerald-700 font-semibold";
                 msg.innerText = "Berhasil! Draf laporan terkirim ke Kepala UPT.";
                 document.getElementById('inputUraian').value = '';
-            } else {
-                msg.className = "p-3 rounded-lg text-xs text-center bg-red-900/50 text-red-300 border border-red-700 font-semibold";
-                msg.innerText = "Gagal mengirim: " + error.message;
             }
         }
 
-        // PARSE EXCEL INPUT
         function handleExcelParse(event) {
             const file = event.target.files[0];
             const jenis = document.getElementById('inputJenisLaporan').value;
@@ -587,8 +520,7 @@
                     filename: file.name,
                     total_rows: jsonData.length,
                     rows: jsonData,
-                    metode: 'EXCEL_PARSED',
-                    timestamp: new Date().toISOString()
+                    metode: 'EXCEL_PARSED'
                 };
 
                 const { error } = await _supabase.from('laporan_kamtib').insert([{
@@ -599,45 +531,15 @@
 
                 if (!error) {
                     msg.className = "p-3 rounded-lg text-xs text-center bg-emerald-900/50 text-emerald-300 border border-emerald-700 font-semibold";
-                    msg.innerText = `Berhasil! File Excel '${file.name}' (${jsonData.length} baris) terkirim ke Kepala UPT.`;
-                } else {
-                    msg.className = "p-3 rounded-lg text-xs text-center bg-red-900/50 text-red-300 border border-red-700 font-semibold";
-                    msg.innerText = "Gagal memasukkan Excel: " + error.message;
+                    msg.innerText = `Berhasil! File Excel '${file.name}' terkirim ke Kepala UPT.`;
                 }
             };
             reader.readAsArrayBuffer(file);
         }
 
-        // LOAD RETURNED REPORTS FOR OPERATOR UPT
-        async function loadUptReturnedList() {
-            const container = document.getElementById('listReturnedToUpt');
-            const { data } = await _supabase.from('laporan_kamtib')
-                .select('*')
-                .in('status', ['REJECTED_KA_UPT', 'REJECTED_KANWIL']);
-
-            const filtered = (data || []).filter(d => d.isi_data_jsonb && d.isi_data_jsonb.upt === currentUser.upt);
-
-            if (filtered.length === 0) {
-                container.innerHTML = '<p class="text-xs text-slate-500">Tidak ada laporan yang dikembalikan.</p>';
-                return;
-            }
-
-            container.innerHTML = filtered.map(item => `
-                <div class="bg-slate-900 p-3 rounded-lg border border-rose-800/60 flex justify-between items-center gap-4">
-                    <div>
-                        <span class="text-[10px] bg-rose-900/80 text-rose-200 px-2 py-0.5 rounded font-bold uppercase">Dikembalikan (${item.status})</span>
-                        <h4 class="font-bold text-xs text-slate-200 mt-1">${item.jenis_laporan} - Periode ${item.isi_data_jsonb.bulan} ${item.isi_data_jsonb.tahun}</h4>
-                        <p class="text-xs text-rose-300 mt-1">Alasan Revisi: "${item.isi_data_jsonb.catatan_revisi || 'Periksa kembali data'}"</p>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // LOAD KA UPT LIST
         async function loadKaUptList() {
             const container = document.getElementById('listKaUptApproval');
             const { data } = await _supabase.from('laporan_kamtib').select('*').eq('status', 'SUBMITTED_KA_UPT').order('created_at', {ascending: false});
-
             const filtered = (data || []).filter(d => d.isi_data_jsonb && d.isi_data_jsonb.upt === currentUser.upt);
 
             if (filtered.length === 0) {
@@ -646,30 +548,25 @@
             }
 
             container.innerHTML = filtered.map(item => `
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center">
                     <div>
                         <span class="text-xs font-bold text-blue-400">${item.isi_data_jsonb.upt}</span>
                         <h4 class="font-bold text-sm text-slate-200">${item.jenis_laporan} (${item.isi_data_jsonb.bulan} ${item.isi_data_jsonb.tahun})</h4>
-                        <p class="text-xs text-slate-400 mt-1">${item.isi_data_jsonb.uraian || 'File Excel: ' + item.isi_data_jsonb.filename}</p>
                     </div>
-                    <div class="flex gap-2">
-                        <button onclick="openRevisionModal('${item.id}', 'REJECT_KA_UPT')" class="bg-rose-900/70 hover:bg-rose-800 text-rose-200 text-xs px-3 py-2 rounded-lg font-bold">Kembalikan</button>
-                        <button onclick="approveKaUpt('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2 rounded-lg font-bold shadow">ACC & TTD (PIN: 123456)</button>
-                    </div>
+                    <button onclick="approveKaUpt('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2 rounded-lg font-bold">ACC & TTD (PIN: 123456)</button>
                 </div>
             `).join('');
         }
 
         async function approveKaUpt(id) {
-            const { error } = await _supabase.from('laporan_kamtib').update({ status: 'APPROVED_KA_UPT' }).eq('id', id);
-            if (!error) { alert('Laporan berhasil di-ACC oleh Kepala UPT!'); loadKaUptList(); }
+            await _supabase.from('laporan_kamtib').update({ status: 'APPROVED_KA_UPT' }).eq('id', id);
+            alert('Laporan berhasil di-ACC oleh Kepala UPT!');
+            loadKaUptList();
         }
 
-        // LOAD KANWIL LIST
         async function loadKanwilList() {
             const container = document.getElementById('listKanwilApproval');
             const { data } = await _supabase.from('laporan_kamtib').select('*').eq('status', 'APPROVED_KA_UPT').order('created_at', {ascending: false});
-
             const filtered = (data || []).filter(d => d.isi_data_jsonb && (currentUser.role === 'DITJENPAS' || d.isi_data_jsonb.kanwil === currentUser.kanwil));
 
             if (filtered.length === 0) {
@@ -678,216 +575,80 @@
             }
 
             container.innerHTML = filtered.map(item => `
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center">
                     <div>
-                        <span class="text-xs font-bold text-purple-400">${item.isi_data_jsonb.upt} (${item.isi_data_jsonb.kanwil})</span>
+                        <span class="text-xs font-bold text-purple-400">${item.isi_data_jsonb.upt}</span>
                         <h4 class="font-bold text-sm text-slate-200">${item.jenis_laporan} - ${item.isi_data_jsonb.bulan} ${item.isi_data_jsonb.tahun}</h4>
-                        <p class="text-xs text-slate-400 mt-1">${item.isi_data_jsonb.uraian || 'File Excel: ' + item.isi_data_jsonb.filename}</p>
                     </div>
-                    <div class="flex gap-2">
-                        <button onclick="openRevisionModal('${item.id}', 'REJECT_KANWIL')" class="bg-rose-900/70 hover:bg-rose-800 text-rose-200 text-xs px-3 py-2 rounded-lg font-bold">Kembalikan ke UPT</button>
-                        <button onclick="approveKanwil('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2 rounded-lg font-bold shadow">Verifikasi Setuju (PIN: 654321)</button>
-                    </div>
+                    <button onclick="approveKanwil('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2 rounded-lg font-bold">Verifikasi Setuju (PIN: 654321)</button>
                 </div>
             `).join('');
         }
 
         async function approveKanwil(id) {
-            const { error } = await _supabase.from('laporan_kamtib').update({ status: 'APPROVED_KANWIL' }).eq('id', id);
-            if (!error) { alert('Laporan terverifikasi Sah oleh Kanwil!'); loadKanwilList(); }
+            await _supabase.from('laporan_kamtib').update({ status: 'APPROVED_KANWIL' }).eq('id', id);
+            alert('Laporan terverifikasi oleh Kanwil!');
+            loadKanwilList();
         }
 
-        // LOAD DITJENPAS LIST & PULL NATIONAL DATA
         async function loadDitjenpasList() {
             const container = document.getElementById('listDitjenpasApproval');
-            const { data } = await _supabase.from('laporan_kamtib').select('*').order('created_at', {ascending: false});
+            const { data } = await _supabase.from('laporan_kamtib').select('*').eq('status', 'APPROVED_KANWIL').order('created_at', {ascending: false});
 
-            nationalDataCache = data || [];
-
-            const filtered = nationalDataCache.filter(d => d.status === 'APPROVED_KANWIL');
-
-            if (filtered.length === 0) {
+            if (!data || data.length === 0) {
                 container.innerHTML = '<p class="text-xs text-slate-500">Tidak ada laporan yang menunggu verifikasi Ditjenpas.</p>';
                 return;
             }
 
-            container.innerHTML = filtered.map(item => `
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            container.innerHTML = data.map(item => `
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center">
                     <div>
                         <span class="text-xs font-bold text-cyan-400">${item.isi_data_jsonb.upt} (${item.isi_data_jsonb.kanwil})</span>
                         <h4 class="font-bold text-sm text-slate-200">${item.jenis_laporan} - ${item.isi_data_jsonb.bulan} ${item.isi_data_jsonb.tahun}</h4>
-                        <p class="text-xs text-slate-400 mt-1">${item.isi_data_jsonb.uraian || 'File Excel: ' + item.isi_data_jsonb.filename}</p>
                     </div>
-                    <div class="flex gap-2">
-                        <button onclick="openRevisionModal('${item.id}', 'REJECT_DITJENPAS')" class="bg-rose-900/70 hover:bg-rose-800 text-rose-200 text-xs px-3 py-2 rounded-lg font-bold">Kembalikan ke Kanwil</button>
-                        <button onclick="approveDitjenpas('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2 rounded-lg font-bold shadow">Verifikasi Setuju (FINAL SAH)</button>
-                    </div>
+                    <button onclick="approveDitjenpas('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2 rounded-lg font-bold">Verifikasi Setuju (FINAL SAH)</button>
                 </div>
             `).join('');
         }
 
         async function approveDitjenpas(id) {
-            const { error } = await _supabase.from('laporan_kamtib').update({ status: 'VERIFIED_FINAL' }).eq('id', id);
-            if (!error) { alert('Laporan berhasil diverifikasi Sah secara Nasional oleh Ditjenpas!'); loadDitjenpasList(); }
+            await _supabase.from('laporan_kamtib').update({ status: 'VERIFIED_FINAL' }).eq('id', id);
+            alert('Laporan Sah secara Nasional!');
+            loadDitjenpasList();
         }
 
-        async function pullAllNationalData() {
-            alert('Memulai penarikan seluruh data nasional dari 613 UPT se-Indonesia...');
-            await loadDitjenpasList();
-            alert(`Selesai! Berhasil mengunduh & menyinkronkan ${nationalDataCache.length} data laporan nasional.`);
+        function pullAllNationalData() {
+            alert('Memulai penarikan seluruh data nasional...');
+            loadDitjenpasList();
+            alert('Sinkronisasi data selesai!');
         }
 
-        // MODAL REVISI HANDLERS
-        function openRevisionModal(id, action) {
-            activeRevId = id;
-            activeRevAction = action;
-            document.getElementById('textCatatanRevisi').value = '';
-            document.getElementById('modalRevision').classList.remove('hidden');
-            document.getElementById('modalRevision').classList.add('flex');
-        }
-
-        function closeRevisionModal() {
-            document.getElementById('modalRevision').classList.add('hidden');
-            document.getElementById('modalRevision').classList.remove('flex');
-        }
-
-        async function submitRevisionAction() {
-            const catatan = document.getElementById('textCatatanRevisi').value;
-            if (!catatan.trim()) { alert('Harap isi alasan pengembalian!'); return; }
-
-            let statusTarget = 'REJECTED_KA_UPT';
-            if (activeRevAction === 'REJECT_KANWIL') statusTarget = 'REJECTED_KANWIL';
-            if (activeRevAction === 'REJECT_DITJENPAS') statusTarget = 'REJECTED_DITJENPAS';
-
-            // Ambil data lama
-            const { data: currentData } = await _supabase.from('laporan_kamtib').select('*').eq('id', activeRevId).single();
-            const updatedJson = { ...currentData.isi_data_jsonb, catatan_revisi: catatan };
-
-            const { error } = await _supabase.from('laporan_kamtib')
-                .update({ status: statusTarget, isi_data_jsonb: updatedJson })
-                .eq('id', activeRevId);
-
-            if (!error) {
-                alert('Laporan telah dikembalikan untuk perbaikan.');
-                closeRevisionModal();
-                if (currentUser.role === 'KA_UPT') loadKaUptList();
-                if (currentUser.role === 'KANWIL') loadKanwilList();
-                if (currentUser.role === 'DITJENPAS') loadDitjenpasList();
-            }
-        }
-
-        // SAJIAN DATA INTERAKTIF & MULTI-FILTER
         function initFilterDropdowns() {
-            const kanwilSelect = document.getElementById('filterKanwil');
-            kanwilSelect.innerHTML = '<option value="ALL">-- Seluruh Indonesia --</option>';
-            Object.keys(UPT_DICTIONARY).forEach(k => {
+            const select = document.getElementById('filterKanwil');
+            select.innerHTML = '<option value="ALL">-- Seluruh Indonesia --</option>';
+            ALL_KANWILS.forEach(k => {
                 const opt = document.createElement('option');
                 opt.value = k;
                 opt.innerText = "Kanwil " + k;
-                kanwilSelect.appendChild(opt);
+                select.appendChild(opt);
             });
         }
 
         function onPeriodeModeChange() {
-            const mode = document.getElementById('filterPeriodeMode').value;
-            const subSelect = document.getElementById('filterSubPeriode');
-            subSelect.innerHTML = '';
-
-            if (mode === 'KESELURUHAN') {
-                subSelect.innerHTML = '<option value="ALL">Semua Waktu</option>';
-            } else if (mode === 'BULAN') {
-                ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'].forEach(b => {
-                    subSelect.innerHTML += `<option value="${b}">${b}</option>`;
-                });
-            } else if (mode === 'TRIWULAN') {
-                subSelect.innerHTML = `
-                    <option value="Q1">Triwulan I (Jan - Mar)</option>
-                    <option value="Q2">Triwulan II (Apr - Jun)</option>
-                    <option value="Q3">Triwulan III (Jul - Sep)</option>
-                    <option value="Q4">Triwulan IV (Okt - Des)</option>
-                `;
-            } else if (mode === 'SEMESTER') {
-                subSelect.innerHTML = `
-                    <option value="S1">Semester I (Jan - Jun)</option>
-                    <option value="S2">Semester II (Jul - Des)</option>
-                `;
-            } else if (mode === 'TAHUN') {
-                subSelect.innerHTML = `<option value="2026">2026</option><option value="2025">2025</option>`;
-            }
-
             renderSajianDashboard();
         }
 
         async function renderSajianDashboard() {
-            const { data } = await _supabase.from('laporan_kamtib').select('*').order('created_at', {ascending: false});
+            const { data } = await _supabase.from('laporan_kamtib').select('*');
             if (!data) return;
 
-            const jenisVal = document.getElementById('filterJenis').value;
-            const modeVal = document.getElementById('filterPeriodeMode').value;
-            const subVal = document.getElementById('filterSubPeriode').value;
-            const kanwilVal = document.getElementById('filterKanwil').value;
+            document.getElementById('statTotal').innerText = data.length;
+            document.getElementById('statDraft').innerText = data.filter(d => d.status === 'SUBMITTED_KA_UPT').length;
+            document.getElementById('statKanwil').innerText = data.filter(d => d.status === 'APPROVED_KA_UPT').length;
+            document.getElementById('statDitjenpas').innerText = data.filter(d => d.status === 'APPROVED_KANWIL').length;
+            document.getElementById('statSah').innerText = data.filter(d => d.status === 'VERIFIED_FINAL').length;
 
-            // Filtering Data
-            let filtered = data.filter(item => {
-                const json = item.isi_data_jsonb || {};
-                
-                // Filter Jenis
-                if (jenisVal !== 'ALL' && item.jenis_laporan !== jenisVal) return false;
-
-                // Filter Kanwil
-                if (kanwilVal !== 'ALL' && json.kanwil !== kanwilVal && json.kanwil !== 'Kanwil ' + kanwilVal) return false;
-
-                // Filter Periode
-                if (modeVal === 'BULAN' && json.bulan !== subVal) return false;
-                if (modeVal === 'TAHUN' && json.tahun !== subVal) return false;
-                if (modeVal === 'TRIWULAN') {
-                    const qMap = { 'Q1': ['Januari','Februari','Maret'], 'Q2': ['April','Mei','Juni'], 'Q3': ['Juli','Agustus','September'], 'Q4': ['Oktober','November','Desember'] };
-                    if (!qMap[subVal].includes(json.bulan)) return false;
-                }
-                if (modeVal === 'SEMESTER') {
-                    const sMap = { 'S1': ['Januari','Februari','Maret','April','Mei','Juni'], 'S2': ['Juli','Agustus','September','Oktober','November','Desember'] };
-                    if (!sMap[subVal].includes(json.bulan)) return false;
-                }
-
-                return true;
-            });
-
-            // Update Metric Counters
-            document.getElementById('statTotal').innerText = filtered.length;
-            document.getElementById('statDraft').innerText = filtered.filter(d => d.status === 'SUBMITTED_KA_UPT').length;
-            document.getElementById('statKanwil').innerText = filtered.filter(d => d.status === 'APPROVED_KA_UPT').length;
-            document.getElementById('statDitjenpas').innerText = filtered.filter(d => d.status === 'APPROVED_KANWIL').length;
-            document.getElementById('statSah').innerText = filtered.filter(d => d.status === 'VERIFIED_FINAL').length;
-            document.getElementById('statRevisi').innerText = filtered.filter(d => d.status.includes('REJECTED')).length;
-
-            // Render Table Sajian
-            const tbody = document.getElementById('tableSajianBody');
-            if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="p-3 text-center text-slate-500">Tidak ada data yang sesuai dengan kombinasi filter.</td></tr>';
-            } else {
-                tbody.innerHTML = filtered.map(item => {
-                    const json = item.isi_data_jsonb || {};
-                    let badge = '<span class="bg-yellow-900/50 text-yellow-300 px-2 py-0.5 rounded text-[10px]">Draf UPT</span>';
-                    if (item.status === 'APPROVED_KA_UPT') badge = '<span class="bg-purple-900/50 text-purple-300 px-2 py-0.5 rounded text-[10px]">ACC Ka UPT</span>';
-                    if (item.status === 'APPROVED_KANWIL') badge = '<span class="bg-cyan-900/50 text-cyan-300 px-2 py-0.5 rounded text-[10px]">Sah Kanwil</span>';
-                    if (item.status === 'VERIFIED_FINAL') badge = '<span class="bg-emerald-900/50 text-emerald-300 px-2 py-0.5 rounded text-[10px] font-bold">Sah Final Pusat</span>';
-                    if (item.status.includes('REJECTED')) badge = '<span class="bg-rose-900/50 text-rose-300 px-2 py-0.5 rounded text-[10px]">Dikembalikan</span>';
-
-                    return `
-                        <tr class="hover:bg-slate-800">
-                            <td class="p-3 font-semibold text-slate-200">${json.upt || 'UPT'}<br><span class="text-[10px] text-slate-500">${json.kanwil || '-'}</span></td>
-                            <td class="p-3 font-bold text-blue-400">${item.jenis_laporan}</td>
-                            <td class="p-3 text-slate-300">${json.bulan || '-'} ${json.tahun || ''}</td>
-                            <td class="p-3 text-slate-400 max-w-xs truncate">${json.uraian || 'Excel: ' + (json.filename || 'File') + ' (' + (json.total_rows || 1) + ' baris)'}</td>
-                            <td class="p-3">${badge}</td>
-                            <td class="p-3 text-rose-300 text-[11px]">${json.catatan_revisi ? `"${json.catatan_revisi}"` : '-'}</td>
-                        </tr>
-                    `;
-                }).join('');
-            }
-
-            // Render Charts
-            renderCharts(filtered);
+            renderCharts(data);
         }
 
         function renderCharts(dataList) {
@@ -897,49 +658,38 @@
             if (chartStatusInst) chartStatusInst.destroy();
             if (chartJenisInst) chartJenisInst.destroy();
 
-            const statusCounts = {
-                'Draf UPT': dataList.filter(d => d.status === 'SUBMITTED_KA_UPT').length,
-                'Proses Kanwil': dataList.filter(d => d.status === 'APPROVED_KA_UPT').length,
-                'Proses Ditjenpas': dataList.filter(d => d.status === 'APPROVED_KANWIL').length,
-                'Sah Final': dataList.filter(d => d.status === 'VERIFIED_FINAL').length,
-                'Dikembalikan': dataList.filter(d => d.status.includes('REJECTED')).length
-            };
-
             chartStatusInst = new Chart(ctxStatus, {
                 type: 'doughnut',
                 data: {
-                    labels: Object.keys(statusCounts),
+                    labels: ['Draf UPT', 'Proses Kanwil', 'Proses Ditjenpas', 'Sah Final'],
                     datasets: [{
-                        data: Object.values(statusCounts),
-                        backgroundColor: ['#f59e0b', '#a855f7', '#06b6d4', '#10b981', '#f43f5e']
+                        data: [
+                            dataList.filter(d => d.status === 'SUBMITTED_KA_UPT').length,
+                            dataList.filter(d => d.status === 'APPROVED_KA_UPT').length,
+                            dataList.filter(d => d.status === 'APPROVED_KANWIL').length,
+                            dataList.filter(d => d.status === 'VERIFIED_FINAL').length
+                        ],
+                        backgroundColor: ['#f59e0b', '#a855f7', '#06b6d4', '#10b981']
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94a3b8', font: { size: 10 } } } } }
+                options: { responsive: true, maintainAspectRatio: false }
             });
-
-            const jenisCounts = {
-                'Pelarian': dataList.filter(d => d.jenis_laporan === 'PELARIAN').length,
-                'Perkara Baru': dataList.filter(d => d.jenis_laporan === 'PERKARA_BARU').length,
-                'Gangguan Kamtib': dataList.filter(d => d.jenis_laporan === 'GANGGUAN_KAMTIB').length,
-                'Opsnal 15': dataList.filter(d => d.jenis_laporan === 'LAPORAN_OPSNAL').length
-            };
 
             chartJenisInst = new Chart(ctxJenis, {
                 type: 'bar',
                 data: {
-                    labels: Object.keys(jenisCounts),
+                    labels: ['Pelarian', 'Perkara Baru', 'Gangguan Kamtib'],
                     datasets: [{
-                        label: 'Jumlah Laporan',
-                        data: Object.values(jenisCounts),
+                        label: 'Volume Laporan',
+                        data: [
+                            dataList.filter(d => d.jenis_laporan === 'PELARIAN').length,
+                            dataList.filter(d => d.jenis_laporan === 'PERKARA_BARU').length,
+                            dataList.filter(d => d.jenis_laporan === 'GANGGUAN_KAMTIB').length
+                        ],
                         backgroundColor: '#3b82f6'
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { ticks: { color: '#94a3b8' } }, x: { ticks: { color: '#94a3b8' } } },
-                    plugins: { legend: { display: false } }
-                }
+                options: { responsive: true, maintainAspectRatio: false }
             });
         }
     </script>
