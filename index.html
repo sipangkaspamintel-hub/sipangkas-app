@@ -3,119 +3,354 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SI-PANGKAS - Portal Pelaporan Kamtib</title>
+    <title>SI-PANGKAS - Portal Pelaporan Kamtib Terintegrasi</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- QR Code Generator Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen font-sans">
 
-    <!-- Navigation Header -->
-    <nav class="bg-slate-800 border-b border-slate-700 p-4">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
+    <!-- Header Navigation -->
+    <nav class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
             <div>
                 <h1 class="text-xl font-bold text-blue-400">SI-PANGKAS DITJENPAS</h1>
                 <p class="text-xs text-slate-400">Kementerian Imigrasi dan Pemasyarakatan (Kemenimipas)</p>
             </div>
-            <span class="text-xs bg-blue-900 text-blue-200 border border-blue-700 px-3 py-1 rounded-full font-semibold">Masa Uji Coba</span>
+            
+            <!-- Role Switcher (Untuk Simulasi Demo) -->
+            <div class="flex items-center gap-2 bg-slate-900 p-1.5 rounded-lg border border-slate-700">
+                <span class="text-xs text-slate-400 pl-2">Mode Akses:</span>
+                <button onclick="switchTab('upt')" id="tab-upt" class="px-3 py-1 text-xs rounded-md font-semibold bg-blue-600 text-white">1. Operator UPT</button>
+                <button onclick="switchTab('kaupt')" id="tab-kaupt" class="px-3 py-1 text-xs rounded-md font-semibold text-slate-400 hover:text-white">2. Ka UPT (PIN)</button>
+                <button onclick="switchTab('kanwil')" id="tab-kanwil" class="px-3 py-1 text-xs rounded-md font-semibold text-slate-400 hover:text-white">3. Kanwil (Verifikasi)</button>
+                <button onclick="switchTab('ditjenpas')" id="tab-ditjenpas" class="px-3 py-1 text-xs rounded-md font-semibold text-slate-400 hover:text-white">4. Ditjenpas (Executive)</button>
+            </div>
         </div>
     </nav>
 
-    <!-- Main Container -->
-    <div class="max-w-4xl mx-auto p-6 mt-4">
-        
-        <!-- Form Input UPT -->
-        <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-2xl mb-8">
-            <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
-                <h2 class="text-lg font-bold text-slate-200">Formulir Input 15 Laporan Kamtib UPT</h2>
-                <span class="text-xs text-slate-400">Lapas / Rutan / LPKA</span>
+    <div class="max-w-7xl mx-auto p-4 md:p-6">
+
+        <!-- ================= 1. VIEW OPERATOR UPT ================= -->
+        <div id="view-upt" class="space-y-6">
+            <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl">
+                <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-3 mb-4">Formulir Input 15 Laporan Kamtib UPT</h2>
+                
+                <form id="formLaporan" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1 text-slate-300">Nama UPT Pemasyarakatan:</label>
+                            <select id="namaUpt" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none">
+                                <option value="Lapas Kelas I Jakarta">Lapas Kelas I Jakarta</option>
+                                <option value="Lapas Kelas IIA Bandung">Lapas Kelas IIA Bandung</option>
+                                <option value="Rutan Kelas I Surabaya">Rutan Kelas I Surabaya</option>
+                                <option value="Lapas Risk Tinggi Nusakambangan">Lapas Risk Tinggi Nusakambangan</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1 text-slate-300">Pilih Jenis Laporan Keamanan:</label>
+                            <select id="jenisLaporan" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none">
+                                <option value="LAPORAN_01">01. Laporan Situasi & Isi Penghuni</option>
+                                <option value="LAPORAN_02">02. Laporan Penjagaan & Regu Pengamanan</option>
+                                <option value="LAPORAN_03">03. Laporan Sarana & Prasarana Pengamanan</option>
+                                <option value="LAPORAN_04">04. Laporan Pemeliharaan Senjata & Amunisi</option>
+                                <option value="LAPORAN_05">05. Laporan Kejadian Gangguan Kamtib</option>
+                                <option value="LAPORAN_06">06. Laporan Hasil Penggeledahan / Razia</option>
+                                <option value="LAPORAN_07">07. Laporan Intelijen & Pemetaan Kerawanan</option>
+                                <option value="LAPORAN_08">08. Laporan Narapidana Risiko Tinggi (High-Risk)</option>
+                                <option value="LAPORAN_09">09. Laporan Pelaksanaan Asimilasi / Integrasi</option>
+                                <option value="LAPORAN_10">10. Laporan Mitigasi Bencana & Kebakaran</option>
+                                <option value="LAPORAN_11">11. Laporan Pengawasan Pintu Utama (P2U)</option>
+                                <option value="LAPORAN_12">12. Laporan Pengawalan & Pemindahan WBP</option>
+                                <option value="LAPORAN_13">13. Laporan Evaluasi Kepatuhan SOP Kamtib</option>
+                                <option value="LAPORAN_14">14. Laporan Penindakan & Tanggap Darurat</option>
+                                <option value="LAPORAN_15">15. Laporan Rekapitulasi Bulanan Kamtib Opsnal</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1 text-slate-300">Ringkasan Narasi / Uraian Laporan Bulanan:</label>
+                        <textarea id="uraianLaporan" rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ketik rincian laporan bulanan Kamtib di sini..."></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg shadow-blue-600/30">
+                        Kirim Draf ke Kepala UPT
+                    </button>
+                </form>
+                <p id="pesanStatus" class="mt-4 p-3 rounded-lg text-sm font-medium text-center hidden"></p>
             </div>
-            
-            <form id="formLaporan" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium mb-1 text-slate-300">Pilih Jenis Laporan Keamanan:</label>
-                    <select id="jenisLaporan" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition">
-                        <option value="LAPORAN_01">01. Laporan Situasi & Isi Penghuni</option>
-                        <option value="LAPORAN_02">02. Laporan Penjagaan & Regu Pengamanan</option>
-                        <option value="LAPORAN_03">03. Laporan Sarana & Prasarana Pengamanan</option>
-                        <option value="LAPORAN_04">04. Laporan Pemeliharaan Senjata & Amunisi</option>
-                        <option value="LAPORAN_05">05. Laporan Kejadian Gangguan Kamtib</option>
-                        <option value="LAPORAN_06">06. Laporan Hasil Penggeledahan / Razia</option>
-                        <option value="LAPORAN_07">07. Laporan Intelijen & Pemetaan Kerawanan</option>
-                        <option value="LAPORAN_08">08. Laporan Narapidana Risiko Tinggi (High-Risk)</option>
-                        <option value="LAPORAN_09">09. Laporan Pelaksanaan Asimilasi / Integrasi</option>
-                        <option value="LAPORAN_10">10. Laporan Mitigasi Bencana & Kebakaran</option>
-                        <option value="LAPORAN_11">11. Laporan Pengawasan Pintu Utama (P2U)</option>
-                        <option value="LAPORAN_12">12. Laporan Pengawalan & Pemindahan WBP</option>
-                        <option value="LAPORAN_13">13. Laporan Evaluasi Kepatuhan SOP Kamtib</option>
-                        <option value="LAPORAN_14">14. Laporan Penindakan & Tanggap Darurat</option>
-                        <option value="LAPORAN_15">15. Laporan Rekapitulasi Bulanan Kamtib Opsnal</option>
-                    </select>
-                </div>
+        </div>
 
-                <div>
-                    <label class="block text-sm font-medium mb-1 text-slate-300">Ringkasan Narasi / Uraian Laporan Bulanan:</label>
-                    <textarea id="uraianLaporan" rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Ketik ringkasan laporan di sini..."></textarea>
+        <!-- ================= 2. VIEW KEPALA UPT (PIN) ================= -->
+        <div id="view-kaupt" class="hidden space-y-6">
+            <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl">
+                <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-3 mb-4">Persetujuan & Otorisasi Kepala UPT (PIN)</h2>
+                <div id="list-kaupt" class="space-y-4">
+                    <p class="text-slate-400 text-sm">Memuat data draf laporan UPT...</p>
                 </div>
+            </div>
+        </div>
 
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-lg shadow-blue-600/30">
-                    Kirim Laporan ke Database Supabase
-                </button>
-            </form>
-            
-            <p id="pesanStatus" class="mt-4 p-3 rounded-lg text-sm font-medium text-center hidden"></p>
+        <!-- ================= 3. VIEW KANWIL (VERIFIKASI) ================= -->
+        <div id="view-kanwil" class="hidden space-y-6">
+            <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl">
+                <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-3 mb-4">Matriks Verifikasi Laporan Kamtib Kanwil</h2>
+                <div id="list-kanwil" class="space-y-4">
+                    <p class="text-slate-400 text-sm">Memuat laporan yang menunggu verifikasi Kanwil...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= 4. VIEW DITJENPAS EXECUTIVE ================= -->
+        <div id="view-ditjenpas" class="hidden space-y-6">
+            <!-- Ringkasan Statistik -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-slate-800 p-5 rounded-xl border border-slate-700">
+                    <p class="text-xs text-slate-400 font-semibold uppercase">Total Laporan Masuk</p>
+                    <p id="stat-total" class="text-3xl font-bold text-blue-400 mt-1">0</p>
+                </div>
+                <div class="bg-slate-800 p-5 rounded-xl border border-slate-700">
+                    <p class="text-xs text-slate-400 font-semibold uppercase">Menunggu PIN Ka UPT</p>
+                    <p id="stat-draft" class="text-3xl font-bold text-yellow-400 mt-1">0</p>
+                </div>
+                <div class="bg-slate-800 p-5 rounded-xl border border-slate-700">
+                    <p class="text-xs text-slate-400 font-semibold uppercase">Menunggu Verifikasi Kanwil</p>
+                    <p id="stat-kaupt" class="text-3xl font-bold text-purple-400 mt-1">0</p>
+                </div>
+                <div class="bg-slate-800 p-5 rounded-xl border border-slate-700">
+                    <p class="text-xs text-slate-400 font-semibold uppercase">Terverifikasi Sah</p>
+                    <p id="stat-sah" class="text-3xl font-bold text-emerald-400 mt-1">0</p>
+                </div>
+            </div>
+
+            <!-- Tabel Executive -->
+            <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl">
+                <h2 class="text-lg font-bold text-slate-200 border-b border-slate-700 pb-3 mb-4">Dashboard Executive Sajian Data Nasional</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-slate-300">
+                        <thead class="bg-slate-900 text-xs text-slate-400 uppercase">
+                            <tr>
+                                <th class="p-3">UPT Pengirim</th>
+                                <th class="p-3">Jenis Laporan</th>
+                                <th class="p-3">Ringkasan Narasi</th>
+                                <th class="p-3">Status Validasi</th>
+                                <th class="p-3">Stempel Digital</th>
+                            </tr>
+                        </thead>
+                        <tbody id="list-ditjenpas" class="divide-y divide-slate-700">
+                            <tr><td colspan="5" class="p-3 text-slate-500">Memuat data nasional...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
     </div>
 
-    <!-- Script Integrasi Supabase -->
+    <!-- Modal Input PIN -->
+    <div id="modalPin" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 max-w-sm w-full space-y-4">
+            <h3 class="text-md font-bold text-slate-200" id="pinTitle">Masukkan PIN Otorisasi</h3>
+            <p class="text-xs text-slate-400" id="pinSub">Gunakan PIN default untuk uji coba.</p>
+            <input type="password" id="inputPin" maxlength="6" class="w-full bg-slate-900 border border-slate-700 text-center text-2xl tracking-widest p-3 rounded-lg text-white font-mono outline-none focus:ring-2 focus:ring-blue-500" placeholder="******">
+            <div class="flex gap-2">
+                <button onclick="closePinModal()" class="w-1/2 bg-slate-700 hover:bg-slate-600 text-slate-200 py-2 rounded-lg text-sm font-semibold">Batal</button>
+                <button onclick="submitPin()" class="w-1/2 bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-lg text-sm font-semibold">Proses PIN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Integrasi Supabase & Logika Aplikasi -->
     <script>
-        // Kunci Akses Supabase Otomatis Terpasang
         const SUPABASE_URL = "https://pqzowbxuezamklahzhjt.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxem93Ynh1ZXphbWtsYWh6aGp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MTU3NjMsImV4cCI6MjEwNDA5MTc2M30.LkiSZIj1RR-3MVbvW0PqLejdqhjkF5g7IvBneTtQcRk";
-
-        // Inisialisasi Supabase Client
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Prosessor Form Submission
+        let activeTargetId = null;
+        let activeTargetType = null; // 'KA_UPT' atau 'KAKANWIL'
+
+        // Switch Tab View
+        function switchTab(role) {
+            ['upt', 'kaupt', 'kanwil', 'ditjenpas'].forEach(r => {
+                document.getElementById(`view-${r}`).classList.add('hidden');
+                document.getElementById(`tab-${r}`).className = "px-3 py-1 text-xs rounded-md font-semibold text-slate-400 hover:text-white";
+            });
+            document.getElementById(`view-${role}`).classList.remove('hidden');
+            document.getElementById(`tab-${role}`).className = "px-3 py-1 text-xs rounded-md font-semibold bg-blue-600 text-white";
+
+            if (role === 'kaupt') loadKaUptData();
+            if (role === 'kanwil') loadKanwilData();
+            if (role === 'ditjenpas') loadDitjenpasData();
+        }
+
+        // 1. Submit Operator UPT
         document.getElementById('formLaporan').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const namaUpt = document.getElementById('namaUpt').value;
             const jenis = document.getElementById('jenisLaporan').value;
             const uraian = document.getElementById('uraianLaporan').value;
             const pesan = document.getElementById('pesanStatus');
 
-            if (!uraian.trim()) {
-                pesan.className = "mt-4 p-3 rounded-lg text-sm font-medium text-center bg-yellow-900/50 text-yellow-300 border border-yellow-700";
-                pesan.innerText = "Harap isi uraian laporan sebelum mengirim!";
-                pesan.classList.remove('hidden');
-                return;
-            }
+            if (!uraian.trim()) return;
 
             pesan.className = "mt-4 p-3 rounded-lg text-sm font-medium text-center bg-blue-900/50 text-blue-200 border border-blue-700";
-            pesan.innerText = "Mengirim data ke database Supabase...";
+            pesan.innerText = "Mengirim draf laporan...";
             pesan.classList.remove('hidden');
 
-            // Insert Data ke Tabel laporan_kamtib
-            const { data, error } = await _supabase
-                .from('laporan_kamtib')
-                .insert([
-                    { 
-                        jenis_laporan: jenis, 
-                        isi_data_jsonb: { ringkasan: uraian, kementerian: "Kemenimipas" },
-                        status: 'DRAFT'
-                    }
-                ]);
+            const { error } = await _supabase.from('laporan_kamtib').insert([{
+                jenis_laporan: jenis,
+                isi_data_jsonb: { upt: namaUpt, ringkasan: uraian },
+                status: 'SUBMITTED_KA_UPT'
+            }]);
 
             if (error) {
-                pesan.className = "mt-4 p-3 rounded-lg text-sm font-medium text-center bg-red-900/50 text-red-300 border border-red-700";
-                pesan.innerText = "Gagal mengirim data: " + error.message;
+                pesan.className = "mt-4 p-3 rounded-lg text-sm text-center bg-red-900/50 text-red-300";
+                pesan.innerText = "Gagal: " + error.message;
             } else {
-                pesan.className = "mt-4 p-3 rounded-lg text-sm font-medium text-center bg-emerald-900/50 text-emerald-300 border border-emerald-700";
-                pesan.innerText = "Berhasil! Laporan telah tersimpan secara resmi di Database Supabase.";
+                pesan.className = "mt-4 p-3 rounded-lg text-sm text-center bg-emerald-900/50 text-emerald-300";
+                pesan.innerText = "Berhasil! Draf laporan telah diajukan ke Kepala UPT.";
                 document.getElementById('uraianLaporan').value = '';
             }
         });
+
+        // 2. Load Data Ka UPT
+        async function loadKaUptData() {
+            const container = document.getElementById('list-kaupt');
+            container.innerHTML = '<p class="text-slate-400 text-sm">Memuat data...</p>';
+
+            const { data, error } = await _supabase.from('laporan_kamtib')
+                .select('*').eq('status', 'SUBMITTED_KA_UPT').order('created_at', { ascending: false });
+
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p class="text-slate-500 text-sm">Tidak ada draf laporan yang menunggu persetujuan Ka UPT.</p>';
+                return;
+            }
+
+            container.innerHTML = data.map(item => `
+                <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 flex flex-col md:flex-row justify-between gap-4 items-start md:items-center">
+                    <div>
+                        <span class="text-xs font-bold text-blue-400">${item.isi_data_jsonb.upt}</span>
+                        <h4 class="font-bold text-slate-200">${item.jenis_laporan}</h4>
+                        <p class="text-xs text-slate-400 mt-1">${item.isi_data_jsonb.ringkasan}</p>
+                    </div>
+                    <button onclick="openPinModal('${item.id}', 'KA_UPT')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-lg whitespace-nowrap">
+                        Approve & TTD (PIN: 123456)
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // 3. Load Data Kanwil
+        async function loadKanwilData() {
+            const container = document.getElementById('list-kanwil');
+            container.innerHTML = '<p class="text-slate-400 text-sm">Memuat data...</p>';
+
+            const { data, error } = await _supabase.from('laporan_kamtib')
+                .select('*').eq('status', 'APPROVED_KA_UPT').order('created_at', { ascending: false });
+
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p class="text-slate-500 text-sm">Tidak ada laporan yang menunggu verifikasi Kanwil.</p>';
+                return;
+            }
+
+            container.innerHTML = data.map(item => `
+                <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 flex flex-col md:flex-row justify-between gap-4 items-start md:items-center">
+                    <div>
+                        <span class="text-xs font-bold text-purple-400">${item.isi_data_jsonb.upt} (Disetujui Ka UPT)</span>
+                        <h4 class="font-bold text-slate-200">${item.jenis_laporan}</h4>
+                        <p class="text-xs text-slate-400 mt-1">${item.isi_data_jsonb.ringkasan}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="rejectReport('${item.id}')" class="bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold px-3 py-2 rounded-lg">Reject</button>
+                        <button onclick="openPinModal('${item.id}', 'KAKANWIL')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-lg whitespace-nowrap">
+                            Verifikasi Kanwil (PIN: 654321)
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 4. Load Data Ditjenpas Dashboard
+        async function loadDitjenpasData() {
+            const tbody = document.getElementById('list-ditjenpas');
+            const { data } = await _supabase.from('laporan_kamtib').select('*').order('created_at', { ascending: false });
+
+            if (!data) return;
+
+            document.getElementById('stat-total').innerText = data.length;
+            document.getElementById('stat-draft').innerText = data.filter(d => d.status === 'SUBMITTED_KA_UPT').length;
+            document.getElementById('stat-kaupt').innerText = data.filter(d => d.status === 'APPROVED_KA_UPT').length;
+            document.getElementById('stat-sah').innerText = data.filter(d => d.status === 'VERIFIED_KANWIL').length;
+
+            tbody.innerHTML = data.map(item => {
+                let badge = '<span class="bg-yellow-900/50 text-yellow-300 text-xs px-2 py-1 rounded">Draf UPT</span>';
+                if (item.status === 'APPROVED_KA_UPT') badge = '<span class="bg-purple-900/50 text-purple-300 text-xs px-2 py-1 rounded">Disetujui Ka UPT</span>';
+                if (item.status === 'VERIFIED_KANWIL') badge = '<span class="bg-emerald-900/50 text-emerald-300 text-xs px-2 py-1 rounded font-bold">Sah Kanwil</span>';
+                if (item.status === 'REJECTED') badge = '<span class="bg-rose-900/50 text-rose-300 text-xs px-2 py-1 rounded">Ditolak</span>';
+
+                return `
+                    <tr class="hover:bg-slate-700/50">
+                        <td class="p-3 font-semibold text-slate-200">${item.isi_data_jsonb.upt || 'UPT'}</td>
+                        <td class="p-3 text-xs">${item.jenis_laporan}</td>
+                        <td class="p-3 text-xs max-w-xs truncate">${item.isi_data_jsonb.ringkasan}</td>
+                        <td class="p-3">${badge}</td>
+                        <td class="p-3">
+                            ${item.status === 'VERIFIED_KANWIL' ? '<span class="text-xs text-emerald-400 flex items-center gap-1">✓ Verified QR</span>' : '-'}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // PIN Modal Handlers
+        function openPinModal(id, type) {
+            activeTargetId = id;
+            activeTargetType = type;
+            document.getElementById('pinTitle').innerText = type === 'KA_UPT' ? 'Otorisasi PIN Kepala UPT' : 'Otorisasi PIN Kakanwil';
+            document.getElementById('pinSub').innerText = type === 'KA_UPT' ? 'Gunakan PIN Default: 123456' : 'Gunakan PIN Default: 654321';
+            document.getElementById('inputPin').value = '';
+            document.getElementById('modalPin').classList.remove('hidden');
+            document.getElementById('modalPin').classList.add('flex');
+        }
+
+        function closePinModal() {
+            document.getElementById('modalPin').classList.add('hidden');
+            document.getElementById('modalPin').classList.remove('flex');
+        }
+
+        async function submitPin() {
+            const pin = document.getElementById('inputPin').value;
+            const validPin = activeTargetType === 'KA_UPT' ? '123456' : '654321';
+            const nextStatus = activeTargetType === 'KA_UPT' ? 'APPROVED_KA_UPT' : 'VERIFIED_KANWIL';
+
+            if (pin !== validPin) {
+                alert('PIN Salah! Periksa PIN default.');
+                return;
+            }
+
+            const { error } = await _supabase.from('laporan_kamtib')
+                .update({ status: nextStatus, updated_at: new Date() })
+                .eq('id', activeTargetId);
+
+            if (!error) {
+                alert('Otorisasi PIN Berhasil!');
+                closePinModal();
+                if (activeTargetType === 'KA_UPT') loadKaUptData();
+                if (activeTargetType === 'KAKANWIL') loadKanwilData();
+            } else {
+                alert('Gagal: ' + error.message);
+            }
+        }
+
+        async function rejectReport(id) {
+            if (!confirm('Tolak laporan ini untuk direvisi UPT?')) return;
+            await _supabase.from('laporan_kamtib').update({ status: 'REJECTED' }).eq('id', id);
+            loadKanwilData();
+        }
     </script>
 </body>
 </html>
