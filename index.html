@@ -275,9 +275,9 @@
                     </div>
                 </div>
 
-                <!-- TABEL REKAPITULASI DENGAN TOMBOL CETAK QR CODE -->
+                <!-- TABEL REKAPITULASI DENGAN PRATINJAU DATA UTUH -->
                 <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl space-y-4">
-                    <h3 class="text-sm font-bold text-slate-200 border-b border-slate-700 pb-3">Tabel Rekapitulasi & Cetak Stempel Digital QR</h3>
+                    <h3 class="text-sm font-bold text-slate-200 border-b border-slate-700 pb-3">Tabel Rekapitulasi & Pembacaan Data Utuh Laporan</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs text-slate-300">
                             <thead class="bg-slate-900 text-slate-400 uppercase text-[10px]">
@@ -286,7 +286,7 @@
                                     <th class="p-3">Jenis Laporan</th>
                                     <th class="p-3">Periode</th>
                                     <th class="p-3">Status Otorisasi</th>
-                                    <th class="p-3 text-center">Lembar Pengesahan (QR Code)</th>
+                                    <th class="p-3 text-center">Aksi / Rincian Data</th>
                                 </tr>
                             </thead>
                             <tbody id="tableSajianBody" class="divide-y divide-slate-700">
@@ -311,6 +311,25 @@
 
         </div>
 
+    </div>
+
+    <!-- ================= MODAL PRATINJAU DATA UTUH EXCEL / FORM ================= -->
+    <div id="modalDetailLaporan" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-5xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-900">
+                <div>
+                    <h3 id="modalDetailTitle" class="text-sm font-bold text-blue-400">Rincian Data Laporan Utuh</h3>
+                    <p id="modalDetailSub" class="text-[11px] text-slate-400 mt-0.5"></p>
+                </div>
+                <button onclick="closeDetailModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+            </div>
+            <div id="modalDetailBody" class="p-6 overflow-y-auto space-y-4 text-xs">
+                <!-- Tabel Excel atau Narasi Form akan dimuat secara dinamis di sini -->
+            </div>
+            <div class="p-3 border-t border-slate-700 bg-slate-900 text-right">
+                <button onclick="closeDetailModal()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-4 py-2 rounded-lg text-xs">Tutup Pratinjau</button>
+            </div>
+        </div>
     </div>
 
     <!-- SCRIPT APPLICATION LOGIC -->
@@ -440,7 +459,6 @@
             document.getElementById('userBar').classList.add('hidden');
         }
 
-        // PEMETAAN PRESISI NAVIGASI TABS
         function switchDashboardTab(tab) {
             const tabMap = {
                 'input': { content: 'tabContentInput', nav: 'tabNavInput' },
@@ -506,11 +524,8 @@
 
             if (!error) {
                 msg.className = "p-3 rounded-lg text-xs text-center bg-emerald-900/50 text-emerald-300 border border-emerald-700 font-semibold";
-                msg.innerText = "Berhasil! Draf laporan terkirim ke Kepala UPT. Silakan Keluar / Ganti Akun ke Kepala UPT untuk ACC.";
+                msg.innerText = "Berhasil! Draf laporan terkirim ke Kepala UPT.";
                 document.getElementById('inputUraian').value = '';
-            } else {
-                msg.className = "p-3 rounded-lg text-xs text-center bg-rose-900/50 text-rose-300 border border-rose-700 font-semibold";
-                msg.innerText = "Gagal mengirim data: " + error.message;
             }
         }
 
@@ -524,7 +539,7 @@
             if (!file) return;
 
             msg.className = "p-3 rounded-lg text-xs text-center bg-blue-900/50 text-blue-200 border border-blue-700 font-semibold";
-            msg.innerText = "Membaca file Excel...";
+            msg.innerText = "Membaca & membedah baris data Excel...";
             msg.classList.remove('hidden');
 
             const reader = new FileReader();
@@ -554,10 +569,7 @@
 
                 if (!error) {
                     msg.className = "p-3 rounded-lg text-xs text-center bg-emerald-900/50 text-emerald-300 border border-emerald-700 font-semibold";
-                    msg.innerText = `Berhasil! File Excel '${file.name}' terkirim ke Kepala UPT. Silakan Keluar / Ganti Akun ke Kepala UPT untuk ACC.`;
-                } else {
-                    msg.className = "p-3 rounded-lg text-xs text-center bg-rose-900/50 text-rose-300 border border-rose-700 font-semibold";
-                    msg.innerText = "Gagal mengirim data Excel: " + error.message;
+                    msg.innerText = `Berhasil! File Excel '${file.name}' (${jsonData.length} baris data) terkirim ke Kepala UPT.`;
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -567,13 +579,7 @@
             const container = document.getElementById('listKaUptApproval');
             container.innerHTML = '<p class="text-xs text-slate-500">Memuat data draf laporan UPT...</p>';
 
-            const { data, error } = await _supabase.from('laporan_kamtib').select('*').eq('status', 'SUBMITTED_KA_UPT').order('created_at', {ascending: false});
-            
-            if (error) {
-                container.innerHTML = `<p class="text-xs text-rose-400">Gagal memuat data: ${error.message}</p>`;
-                return;
-            }
-
+            const { data } = await _supabase.from('laporan_kamtib').select('*').eq('status', 'SUBMITTED_KA_UPT').order('created_at', {ascending: false});
             const filtered = (data || []).filter(d => d.isi_data_jsonb && d.isi_data_jsonb.upt === currentUser.upt);
 
             if (filtered.length === 0) {
@@ -582,13 +588,16 @@
             }
 
             container.innerHTML = filtered.map(item => `
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center gap-4">
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex flex-wrap justify-between items-center gap-4">
                     <div>
                         <span class="text-xs font-bold text-blue-400">${item.isi_data_jsonb.upt}</span>
                         <h4 class="font-bold text-sm text-slate-200">${item.jenis_laporan} (${item.isi_data_jsonb.bulan} ${item.isi_data_jsonb.tahun})</h4>
-                        <p class="text-xs text-slate-400 mt-1">${item.isi_data_jsonb.uraian || 'Metode: ' + item.isi_data_jsonb.metode}</p>
+                        <p class="text-xs text-slate-400 mt-1">Metode: ${item.isi_data_jsonb.metode === 'EXCEL_PARSED' ? '📄 File Excel (' + (item.isi_data_jsonb.total_rows || 0) + ' Baris)' : '📝 Form Isian'}</p>
                     </div>
-                    <button onclick="approveKaUpt('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2.5 rounded-lg font-bold shrink-0 shadow-lg shadow-emerald-600/30">ACC & TTD (PIN: 123456)</button>
+                    <div class="flex items-center gap-2">
+                        <button onclick="viewReportDetail('${item.id}')" class="bg-slate-800 hover:bg-slate-700 text-blue-300 border border-slate-600 text-xs px-3 py-2 rounded-lg font-bold">🔍 Lihat Detail Data</button>
+                        <button onclick="approveKaUpt('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2 rounded-lg font-bold">ACC & TTD (PIN: 123456)</button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -603,13 +612,7 @@
             const container = document.getElementById('listKanwilApproval');
             container.innerHTML = '<p class="text-xs text-slate-500">Memuat data verifikasi Kanwil...</p>';
 
-            const { data, error } = await _supabase.from('laporan_kamtib').select('*').eq('status', 'APPROVED_KA_UPT').order('created_at', {ascending: false});
-            
-            if (error) {
-                container.innerHTML = `<p class="text-xs text-rose-400">Gagal memuat data: ${error.message}</p>`;
-                return;
-            }
-
+            const { data } = await _supabase.from('laporan_kamtib').select('*').eq('status', 'APPROVED_KA_UPT').order('created_at', {ascending: false});
             const filtered = (data || []).filter(d => d.isi_data_jsonb && (currentUser.role === 'DITJENPAS' || d.isi_data_jsonb.kanwil === currentUser.kanwil));
 
             if (filtered.length === 0) {
@@ -618,12 +621,16 @@
             }
 
             container.innerHTML = filtered.map(item => `
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center gap-4">
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex flex-wrap justify-between items-center gap-4">
                     <div>
                         <span class="text-xs font-bold text-purple-400">${item.isi_data_jsonb.upt}</span>
                         <h4 class="font-bold text-sm text-slate-200">${item.jenis_laporan} - ${item.isi_data_jsonb.bulan} ${item.isi_data_jsonb.tahun}</h4>
+                        <p class="text-xs text-slate-400 mt-1">Metode: ${item.isi_data_jsonb.metode === 'EXCEL_PARSED' ? '📄 File Excel (' + (item.isi_data_jsonb.total_rows || 0) + ' Baris)' : '📝 Form Isian'}</p>
                     </div>
-                    <button onclick="approveKanwil('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2.5 rounded-lg font-bold shrink-0 shadow-lg shadow-emerald-600/30">Verifikasi Setuju (PIN: 654321)</button>
+                    <div class="flex items-center gap-2">
+                        <button onclick="viewReportDetail('${item.id}')" class="bg-slate-800 hover:bg-slate-700 text-blue-300 border border-slate-600 text-xs px-3 py-2 rounded-lg font-bold">🔍 Lihat Detail Data</button>
+                        <button onclick="approveKanwil('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2 rounded-lg font-bold">Verifikasi Setuju (PIN: 654321)</button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -638,12 +645,7 @@
             const container = document.getElementById('listDitjenpasApproval');
             container.innerHTML = '<p class="text-xs text-slate-500">Memuat data nasional Ditjenpas...</p>';
 
-            const { data, error } = await _supabase.from('laporan_kamtib').select('*').eq('status', 'APPROVED_KANWIL').order('created_at', {ascending: false});
-
-            if (error) {
-                container.innerHTML = `<p class="text-xs text-rose-400">Gagal memuat data: ${error.message}</p>`;
-                return;
-            }
+            const { data } = await _supabase.from('laporan_kamtib').select('*').eq('status', 'APPROVED_KANWIL').order('created_at', {ascending: false});
 
             if (!data || data.length === 0) {
                 container.innerHTML = '<p class="text-xs text-slate-400 bg-slate-900/50 p-4 rounded-lg border border-slate-700">Tidak ada laporan yang menunggu verifikasi Ditjenpas.</p>';
@@ -651,12 +653,16 @@
             }
 
             container.innerHTML = data.map(item => `
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center gap-4">
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex flex-wrap justify-between items-center gap-4">
                     <div>
                         <span class="text-xs font-bold text-cyan-400">${item.isi_data_jsonb.upt} (${item.isi_data_jsonb.kanwil})</span>
                         <h4 class="font-bold text-sm text-slate-200">${item.jenis_laporan} - ${item.isi_data_jsonb.bulan} ${item.isi_data_jsonb.tahun}</h4>
+                        <p class="text-xs text-slate-400 mt-1">Metode: ${item.isi_data_jsonb.metode === 'EXCEL_PARSED' ? '📄 File Excel (' + (item.isi_data_jsonb.total_rows || 0) + ' Baris)' : '📝 Form Isian'}</p>
                     </div>
-                    <button onclick="approveDitjenpas('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2.5 rounded-lg font-bold shrink-0 shadow-lg shadow-emerald-600/30">Verifikasi Setuju (FINAL SAH)</button>
+                    <div class="flex items-center gap-2">
+                        <button onclick="viewReportDetail('${item.id}')" class="bg-slate-800 hover:bg-slate-700 text-blue-300 border border-slate-600 text-xs px-3 py-2 rounded-lg font-bold">🔍 Lihat Detail Data</button>
+                        <button onclick="approveDitjenpas('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2 rounded-lg font-bold">Verifikasi Setuju (FINAL SAH)</button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -713,9 +719,12 @@
                         <td class="p-3 font-bold text-blue-400">${item.jenis_laporan}</td>
                         <td class="p-3 text-slate-300">${json.bulan || '-'} ${json.tahun || ''}</td>
                         <td class="p-3">${badge}</td>
-                        <td class="p-3 text-center">
-                            <button onclick="cetakStempelQR('${item.id}', '${json.upt}', '${item.jenis_laporan}', '${json.bulan} ${json.tahun}', '${item.status}')" class="bg-slate-700 hover:bg-slate-600 text-blue-300 border border-slate-600 px-2.5 py-1 rounded text-[11px] font-bold">
-                                🖨️ Cetak Pengesahan (QR)
+                        <td class="p-3 text-center space-x-1">
+                            <button onclick="viewReportDetail('${item.id}')" class="bg-blue-900/60 hover:bg-blue-800 text-blue-200 border border-blue-700 px-2 py-1 rounded text-[10px] font-bold">
+                                🔍 Lihat Data
+                            </button>
+                            <button onclick="cetakStempelQR('${item.id}', '${json.upt}', '${item.jenis_laporan}', '${json.bulan} ${json.tahun}', '${item.status}')" class="bg-slate-700 hover:bg-slate-600 text-blue-300 border border-slate-600 px-2 py-1 rounded text-[10px] font-bold">
+                                🖨️ QR
                             </button>
                         </td>
                     </tr>
@@ -723,6 +732,60 @@
             }).join('');
 
             renderCharts(data);
+        }
+
+        // FUNGSI MEMBACA ISI EXCEL / FORM NARRATIVE SECARA UTUH
+        async function viewReportDetail(id) {
+            const { data, error } = await _supabase.from('laporan_kamtib').select('*').eq('id', id).single();
+            if (error || !data) { alert('Gagal memuat rincian data laporan.'); return; }
+
+            const json = data.isi_data_jsonb || {};
+            document.getElementById('modalDetailTitle').innerText = `${data.jenis_laporan} - ${json.upt || 'UPT'}`;
+            document.getElementById('modalDetailSub').innerText = `Kanwil: ${json.kanwil || '-'} | Periode: ${json.bulan || '-'} ${json.tahun || ''} | Metode: ${json.metode || 'FORM'}`;
+
+            const body = document.getElementById('modalDetailBody');
+
+            if (json.metode === 'EXCEL_PARSED' && json.rows && json.rows.length > 0) {
+                const headers = Object.keys(json.rows[0]);
+                let tableHtml = `
+                    <div class="flex justify-between items-center bg-slate-900 p-3 rounded-lg border border-slate-700 mb-3">
+                        <span class="font-bold text-emerald-400">📄 Berkas Excel: ${json.filename || 'Laporan.xlsx'}</span>
+                        <span class="bg-emerald-900/60 text-emerald-300 px-2.5 py-1 rounded text-[11px] font-bold border border-emerald-700">${json.rows.length} Baris Data Terbaca</span>
+                    </div>
+                    <div class="overflow-x-auto border border-slate-700 rounded-lg max-h-[60vh]">
+                        <table class="w-full text-left text-[11px] text-slate-300 divide-y divide-slate-700">
+                            <thead class="bg-slate-900 text-blue-300 font-bold sticky top-0">
+                                <tr>
+                                    <th class="p-2.5 bg-slate-900">NO</th>
+                                    ${headers.map(h => `<th class="p-2.5 whitespace-nowrap bg-slate-900">${h}</th>`).join('')}
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 bg-slate-950">
+                                ${json.rows.map((row, idx) => `
+                                    <tr class="hover:bg-slate-900/80 transition">
+                                        <td class="p-2.5 font-mono text-slate-500">${idx + 1}</td>
+                                        ${headers.map(h => `<td class="p-2.5 whitespace-nowrap">${row[h] !== undefined ? row[h] : '-'}</td>`).join('')}
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                body.innerHTML = tableHtml;
+            } else {
+                body.innerHTML = `
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-700 space-y-2">
+                        <p class="font-bold text-slate-300 text-xs">Ringkasan Uraian Kejadian / Isian Form:</p>
+                        <p class="text-slate-200 whitespace-pre-wrap leading-relaxed text-xs">${json.uraian || 'Tidak ada isian narasi.'}</p>
+                    </div>
+                `;
+            }
+
+            document.getElementById('modalDetailLaporan').classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('modalDetailLaporan').classList.add('hidden');
         }
 
         function exportFilterToExcel() {
