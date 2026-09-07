@@ -440,18 +440,29 @@
             document.getElementById('userBar').classList.add('hidden');
         }
 
+        // PEMETAAN PRESISI NAVIGASI TABS
         function switchDashboardTab(tab) {
-            ['input', 'kaupt', 'kanwil', 'ditjenpas', 'sajian'].forEach(t => {
-                const elContent = document.getElementById(`tabContent${t.charAt(0).toUpperCase() + t.slice(1)}`);
-                const elNav = document.getElementById(`tabNav${t.charAt(0).toUpperCase() + t.slice(1)}`);
+            const tabMap = {
+                'input': { content: 'tabContentInput', nav: 'tabNavInput' },
+                'kaupt': { content: 'tabContentKaUpt', nav: 'tabNavKaUpt' },
+                'kanwil': { content: 'tabContentKanwil', nav: 'tabNavKanwil' },
+                'ditjenpas': { content: 'tabContentDitjenpas', nav: 'tabNavDitjenpas' },
+                'sajian': { content: 'tabContentSajian', nav: 'tabNavSajian' }
+            };
+
+            Object.keys(tabMap).forEach(key => {
+                const elContent = document.getElementById(tabMap[key].content);
+                const elNav = document.getElementById(tabMap[key].nav);
                 if (elContent) elContent.classList.add('hidden');
                 if (elNav) elNav.className = "px-4 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white";
             });
 
-            const activeContent = document.getElementById(`tabContent${tab.charAt(0).toUpperCase() + tab.slice(1)}`);
-            const activeNav = document.getElementById(`tabNav${tab.charAt(0).toUpperCase() + tab.slice(1)}`);
-            if (activeContent) activeContent.classList.remove('hidden');
-            if (activeNav) activeNav.className = "px-4 py-2 text-xs font-bold rounded-lg bg-blue-600 text-white shadow-lg";
+            if (tabMap[tab]) {
+                const activeContent = document.getElementById(tabMap[tab].content);
+                const activeNav = document.getElementById(tabMap[tab].nav);
+                if (activeContent) activeContent.classList.remove('hidden');
+                if (activeNav) activeNav.className = "px-4 py-2 text-xs font-bold rounded-lg bg-blue-600 text-white shadow-lg";
+            }
 
             if (tab === 'kaupt') loadKaUptList();
             if (tab === 'kanwil') loadKanwilList();
@@ -471,7 +482,7 @@
             const uraian = document.getElementById('inputUraian').value;
             const msg = document.getElementById('msgInputStatus');
 
-            if (!uraian.trim()) return;
+            if (!uraian.trim()) { alert('Mohon isi ringkasan narasi kejadian terlebih dahulu!'); return; }
 
             msg.className = "p-3 rounded-lg text-xs text-center bg-blue-900/50 text-blue-200 border border-blue-700 font-semibold";
             msg.innerText = "Mengirim draf laporan...";
@@ -495,8 +506,11 @@
 
             if (!error) {
                 msg.className = "p-3 rounded-lg text-xs text-center bg-emerald-900/50 text-emerald-300 border border-emerald-700 font-semibold";
-                msg.innerText = "Berhasil! Draf laporan terkirim ke Kepala UPT.";
+                msg.innerText = "Berhasil! Draf laporan terkirim ke Kepala UPT. Silakan Keluar / Ganti Akun ke Kepala UPT untuk ACC.";
                 document.getElementById('inputUraian').value = '';
+            } else {
+                msg.className = "p-3 rounded-lg text-xs text-center bg-rose-900/50 text-rose-300 border border-rose-700 font-semibold";
+                msg.innerText = "Gagal mengirim data: " + error.message;
             }
         }
 
@@ -540,7 +554,10 @@
 
                 if (!error) {
                     msg.className = "p-3 rounded-lg text-xs text-center bg-emerald-900/50 text-emerald-300 border border-emerald-700 font-semibold";
-                    msg.innerText = `Berhasil! File Excel '${file.name}' terkirim ke Kepala UPT.`;
+                    msg.innerText = `Berhasil! File Excel '${file.name}' terkirim ke Kepala UPT. Silakan Keluar / Ganti Akun ke Kepala UPT untuk ACC.`;
+                } else {
+                    msg.className = "p-3 rounded-lg text-xs text-center bg-rose-900/50 text-rose-300 border border-rose-700 font-semibold";
+                    msg.innerText = "Gagal mengirim data Excel: " + error.message;
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -548,21 +565,30 @@
 
         async function loadKaUptList() {
             const container = document.getElementById('listKaUptApproval');
-            const { data } = await _supabase.from('laporan_kamtib').select('*').eq('status', 'SUBMITTED_KA_UPT').order('created_at', {ascending: false});
+            container.innerHTML = '<p class="text-xs text-slate-500">Memuat data draf laporan UPT...</p>';
+
+            const { data, error } = await _supabase.from('laporan_kamtib').select('*').eq('status', 'SUBMITTED_KA_UPT').order('created_at', {ascending: false});
+            
+            if (error) {
+                container.innerHTML = `<p class="text-xs text-rose-400">Gagal memuat data: ${error.message}</p>`;
+                return;
+            }
+
             const filtered = (data || []).filter(d => d.isi_data_jsonb && d.isi_data_jsonb.upt === currentUser.upt);
 
             if (filtered.length === 0) {
-                container.innerHTML = '<p class="text-xs text-slate-500">Tidak ada draf laporan yang menunggu ACC Kepala UPT.</p>';
+                container.innerHTML = '<p class="text-xs text-slate-400 bg-slate-900/50 p-4 rounded-lg border border-slate-700">Tidak ada draf laporan yang menunggu ACC Kepala UPT untuk ' + currentUser.upt + '.</p>';
                 return;
             }
 
             container.innerHTML = filtered.map(item => `
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center">
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center gap-4">
                     <div>
                         <span class="text-xs font-bold text-blue-400">${item.isi_data_jsonb.upt}</span>
                         <h4 class="font-bold text-sm text-slate-200">${item.jenis_laporan} (${item.isi_data_jsonb.bulan} ${item.isi_data_jsonb.tahun})</h4>
+                        <p class="text-xs text-slate-400 mt-1">${item.isi_data_jsonb.uraian || 'Metode: ' + item.isi_data_jsonb.metode}</p>
                     </div>
-                    <button onclick="approveKaUpt('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2 rounded-lg font-bold">ACC & TTD (PIN: 123456)</button>
+                    <button onclick="approveKaUpt('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2.5 rounded-lg font-bold shrink-0 shadow-lg shadow-emerald-600/30">ACC & TTD (PIN: 123456)</button>
                 </div>
             `).join('');
         }
@@ -575,21 +601,29 @@
 
         async function loadKanwilList() {
             const container = document.getElementById('listKanwilApproval');
-            const { data } = await _supabase.from('laporan_kamtib').select('*').eq('status', 'APPROVED_KA_UPT').order('created_at', {ascending: false});
+            container.innerHTML = '<p class="text-xs text-slate-500">Memuat data verifikasi Kanwil...</p>';
+
+            const { data, error } = await _supabase.from('laporan_kamtib').select('*').eq('status', 'APPROVED_KA_UPT').order('created_at', {ascending: false});
+            
+            if (error) {
+                container.innerHTML = `<p class="text-xs text-rose-400">Gagal memuat data: ${error.message}</p>`;
+                return;
+            }
+
             const filtered = (data || []).filter(d => d.isi_data_jsonb && (currentUser.role === 'DITJENPAS' || d.isi_data_jsonb.kanwil === currentUser.kanwil));
 
             if (filtered.length === 0) {
-                container.innerHTML = '<p class="text-xs text-slate-500">Tidak ada laporan yang menunggu verifikasi Kanwil.</p>';
+                container.innerHTML = '<p class="text-xs text-slate-400 bg-slate-900/50 p-4 rounded-lg border border-slate-700">Tidak ada laporan yang menunggu verifikasi Kanwil.</p>';
                 return;
             }
 
             container.innerHTML = filtered.map(item => `
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center">
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center gap-4">
                     <div>
                         <span class="text-xs font-bold text-purple-400">${item.isi_data_jsonb.upt}</span>
                         <h4 class="font-bold text-sm text-slate-200">${item.jenis_laporan} - ${item.isi_data_jsonb.bulan} ${item.isi_data_jsonb.tahun}</h4>
                     </div>
-                    <button onclick="approveKanwil('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2 rounded-lg font-bold">Verifikasi Setuju (PIN: 654321)</button>
+                    <button onclick="approveKanwil('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2.5 rounded-lg font-bold shrink-0 shadow-lg shadow-emerald-600/30">Verifikasi Setuju (PIN: 654321)</button>
                 </div>
             `).join('');
         }
@@ -602,20 +636,27 @@
 
         async function loadDitjenpasList() {
             const container = document.getElementById('listDitjenpasApproval');
-            const { data } = await _supabase.from('laporan_kamtib').select('*').eq('status', 'APPROVED_KANWIL').order('created_at', {ascending: false});
+            container.innerHTML = '<p class="text-xs text-slate-500">Memuat data nasional Ditjenpas...</p>';
+
+            const { data, error } = await _supabase.from('laporan_kamtib').select('*').eq('status', 'APPROVED_KANWIL').order('created_at', {ascending: false});
+
+            if (error) {
+                container.innerHTML = `<p class="text-xs text-rose-400">Gagal memuat data: ${error.message}</p>`;
+                return;
+            }
 
             if (!data || data.length === 0) {
-                container.innerHTML = '<p class="text-xs text-slate-500">Tidak ada laporan yang menunggu verifikasi Ditjenpas.</p>';
+                container.innerHTML = '<p class="text-xs text-slate-400 bg-slate-900/50 p-4 rounded-lg border border-slate-700">Tidak ada laporan yang menunggu verifikasi Ditjenpas.</p>';
                 return;
             }
 
             container.innerHTML = data.map(item => `
-                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center">
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 flex justify-between items-center gap-4">
                     <div>
                         <span class="text-xs font-bold text-cyan-400">${item.isi_data_jsonb.upt} (${item.isi_data_jsonb.kanwil})</span>
                         <h4 class="font-bold text-sm text-slate-200">${item.jenis_laporan} - ${item.isi_data_jsonb.bulan} ${item.isi_data_jsonb.tahun}</h4>
                     </div>
-                    <button onclick="approveDitjenpas('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2 rounded-lg font-bold">Verifikasi Setuju (FINAL SAH)</button>
+                    <button onclick="approveDitjenpas('${item.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2.5 rounded-lg font-bold shrink-0 shadow-lg shadow-emerald-600/30">Verifikasi Setuju (FINAL SAH)</button>
                 </div>
             `).join('');
         }
@@ -627,9 +668,7 @@
         }
 
         function pullAllNationalData() {
-            alert('Memulai penarikan seluruh data nasional...');
             loadDitjenpasList();
-            alert('Sinkronisasi data selesai!');
         }
 
         function initFilterDropdowns() {
@@ -656,6 +695,11 @@
             document.getElementById('statSah').innerText = data.filter(d => d.status === 'VERIFIED_FINAL').length;
 
             const tbody = document.getElementById('tableSajianBody');
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-3 text-center text-slate-500">Belum ada data tersedia.</td></tr>';
+                return;
+            }
+
             tbody.innerHTML = data.map(item => {
                 const json = item.isi_data_jsonb || {};
                 let badge = '<span class="bg-yellow-900/50 text-yellow-300 px-2 py-0.5 rounded text-[10px]">Draf UPT</span>';
@@ -681,7 +725,6 @@
             renderCharts(data);
         }
 
-        // EKSPOR REKAPITULASI KE EXCEL (.XLSX)
         function exportFilterToExcel() {
             if (!cachedFilterData || cachedFilterData.length === 0) {
                 alert('Tidak ada data untuk diekspor.');
@@ -706,7 +749,6 @@
             XLSX.writeFile(workbook, `Rekapitulasi_SIPANGKAS_${new Date().toISOString().slice(0,10)}.xlsx`);
         }
 
-        // CETAK LEMBAR PENGESAHAN DENGAN STEMPEL QR CODE
         function cetakStempelQR(id, upt, jenis, periode, status) {
             const qrToken = `SIPANGKAS-VERIFIED-${id.slice(0,8)}-${status}`;
             const printWindow = window.open('', '_blank');
