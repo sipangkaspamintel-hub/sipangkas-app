@@ -104,7 +104,7 @@
                 <button id="tabNavKaUpt" onclick="switchDashboardTab('kaupt')" class="px-4 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white">ACC Ka UPT</button>
                 <button id="tabNavKanwil" onclick="switchDashboardTab('kanwil')" class="px-4 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white">Verifikasi Kanwil</button>
                 <button id="tabNavDitjenpas" onclick="switchDashboardTab('ditjenpas')" class="px-4 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white">Verifikasi Ditjenpas & Tarik Data</button>
-                <button id="tabNavSajian" onclick="switchDashboardTab('sajian')" class="px-4 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white">Sajian Data Interaktif</button>
+                <button id="tabNavSajian" onclick="switchDashboardTab('sajian')" class="px-4 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white">Sajian Data Interaktif Pimpinan</button>
             </div>
 
             <!-- TAB 1: OPERATOR UPT INPUT -->
@@ -211,73 +211,137 @@
                 </div>
             </div>
 
-            <!-- TAB 5: SAJIAN DATA INTERAKTIF & DASHBOARD -->
+            <!-- TAB 5: DASHBOARD SAJIAN DATA EKSEKUTIF PIMPINAN -->
             <div id="tabContentSajian" class="hidden space-y-6">
-                <!-- MULTI-FILTER & EXPORT BAR -->
+                
+                <!-- MULTI-FILTER EXECUTIVE PANEL BAR -->
                 <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl space-y-4">
                     <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-700 pb-3">
-                        <h3 class="text-xs font-bold text-blue-400 uppercase tracking-wider">Filter Panel & Ekspor Data Rekapitulasi</h3>
+                        <div>
+                            <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider">Panel Filter Rekapitulasi Eksekutif</h3>
+                            <p class="text-[11px] text-slate-400">Otomatis Mengagregasi Baris Data Excel & Form Laporan</p>
+                        </div>
                         <button onclick="exportFilterToExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-lg shadow-emerald-600/30 flex items-center gap-1.5">
-                            <span>📥</span> Ekspor Rekapitulasi Excel (.xlsx)
+                            <span>📥</span> Ekspor Matriks Laporan (.xlsx)
                         </button>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
                         <div>
-                            <label class="block text-slate-400 mb-1">Filter Jenis Laporan:</label>
+                            <label class="block text-slate-400 font-semibold mb-1">1. Wilayah Kanwil:</label>
+                            <select id="filterKanwil" onchange="renderSajianDashboard()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 outline-none">
+                                <option value="ALL">-- Seluruh Indonesia (Nasional) --</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-400 font-semibold mb-1">2. Skala Rentang Waktu:</label>
+                            <select id="filterPeriodeMode" onchange="renderSajianDashboard()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 outline-none">
+                                <option value="ALL">Keseluruhan Waktu</option>
+                                <option value="SEM1">Semester I (Januari - Juni)</option>
+                                <option value="SEM2">Semester II (Juli - Desember)</option>
+                                <option value="BULAN_SEPT">Bulan September</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-400 font-semibold mb-1">3. Tahun Pelaporan:</label>
+                            <select id="filterTahun" onchange="renderSajianDashboard()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 outline-none">
+                                <option value="2026" selected>Tahun 2026</option>
+                                <option value="2025">Tahun 2025</option>
+                                <option value="ALL">Semua Tahun</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-400 font-semibold mb-1">4. Kategori Kamtib:</label>
                             <select id="filterJenis" onchange="renderSajianDashboard()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 outline-none">
-                                <option value="ALL">-- Semua Jenis Laporan --</option>
-                                <option value="PELARIAN">Pelarian & Analisa Pelarian</option>
+                                <option value="ALL">-- Semua Kategori Kamtib --</option>
+                                <option value="PELARIAN">Pelarian & Analisa WBP</option>
                                 <option value="PERKARA_BARU">WBP / Tahanan Perkara Baru</option>
                                 <option value="GANGGUAN_KAMTIB">Gangguan Kamtib & Disiplin</option>
                             </select>
                         </div>
-
-                        <div>
-                            <label class="block text-slate-400 mb-1">Filter Rentang Waktu:</label>
-                            <select id="filterPeriodeMode" onchange="renderSajianDashboard()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 outline-none">
-                                <option value="KESELURUHAN">Keseluruhan Waktu</option>
-                                <option value="BULAN">Per Bulan</option>
-                                <option value="TAHUN">Per Tahun</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-slate-400 mb-1">Filter Wilayah Kanwil:</label>
-                            <select id="filterKanwil" onchange="renderSajianDashboard()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 outline-none">
-                                <option value="ALL">-- Seluruh Indonesia --</option>
-                            </select>
-                        </div>
                     </div>
                 </div>
 
-                <!-- CARDS INDIKATOR -->
+                <!-- KPI EXECUTIVE SUMMARY CARDS -->
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
                     <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
-                        <p class="text-[10px] text-slate-400 font-semibold uppercase">Total Laporan</p>
-                        <p id="statTotal" class="text-2xl font-bold text-blue-400 mt-1">0</p>
+                        <p class="text-[10px] text-slate-400 font-semibold uppercase">Total Kejadian Terdata</p>
+                        <p id="statTotalKejadian" class="text-2xl font-black text-blue-400 mt-1">0</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5">Agregasi Baris Excel & Form</p>
                     </div>
                     <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
-                        <p class="text-[10px] text-slate-400 font-semibold uppercase">Draf UPT</p>
-                        <p id="statDraft" class="text-2xl font-bold text-yellow-400 mt-1">0</p>
+                        <p class="text-[10px] text-slate-400 font-semibold uppercase">Kasus Pelarian</p>
+                        <p id="statTotalPelarian" class="text-2xl font-black text-rose-400 mt-1">0</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5">Analisa WBP Lari</p>
                     </div>
                     <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
-                        <p class="text-[10px] text-slate-400 font-semibold uppercase">Proses Kanwil</p>
-                        <p id="statKanwil" class="text-2xl font-bold text-purple-400 mt-1">0</p>
+                        <p class="text-[10px] text-slate-400 font-semibold uppercase">Perkara Baru</p>
+                        <p id="statTotalPerkara" class="text-2xl font-black text-amber-400 mt-1">0</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5">Pidana / Tahanan Baru</p>
                     </div>
                     <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
-                        <p class="text-[10px] text-slate-400 font-semibold uppercase">Proses Ditjenpas</p>
-                        <p id="statDitjenpas" class="text-2xl font-bold text-cyan-400 mt-1">0</p>
+                        <p class="text-[10px] text-slate-400 font-semibold uppercase">Gangguan Kamtib</p>
+                        <p id="statTotalGangguan" class="text-2xl font-black text-purple-400 mt-1">0</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5">Pelanggaran Disiplin</p>
                     </div>
                     <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
-                        <p class="text-[10px] text-slate-400 font-semibold uppercase">Sah Final</p>
-                        <p id="statSah" class="text-2xl font-bold text-emerald-400 mt-1">0</p>
+                        <p class="text-[10px] text-slate-400 font-semibold uppercase">Laporan Sah Final</p>
+                        <p id="statSahFinal" class="text-2xl font-black text-emerald-400 mt-1">0</p>
+                        <p class="text-[10px] text-slate-500 mt-0.5">Terverifikasi Pusat</p>
                     </div>
                 </div>
 
-                <!-- TABEL REKAPITULASI DENGAN PRATINJAU DATA UTUH -->
+                <!-- VISUALISASI GRAFIK EKSEKUTIF PIMPINAN -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl md:col-span-2">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="text-xs font-bold text-slate-200">Tren Kejadian Kamtib (Per Bulan / Semester)</h4>
+                            <span class="text-[10px] text-blue-400 bg-blue-900/50 px-2 py-0.5 rounded border border-blue-700 font-mono">Statistik Pimpinan</span>
+                        </div>
+                        <div class="h-64"><canvas id="chartTrendMonth"></canvas></div>
+                    </div>
+
+                    <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl">
+                        <h4 class="text-xs font-bold text-slate-200 mb-4">Proporsi Jenis Kejadian Kamtib</h4>
+                        <div class="h-64"><canvas id="chartJenisProp"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- TABEL MATRIKS REKAPITULASI PIMPINAN -->
                 <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl space-y-4">
-                    <h3 class="text-sm font-bold text-slate-200 border-b border-slate-700 pb-3">Tabel Rekapitulasi & Pembacaan Data Utuh Laporan</h3>
+                    <div class="flex flex-wrap justify-between items-center gap-2 border-b border-slate-700 pb-3">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-200">Tabel Rekapitulasi Matriks Wilayah / Nasional</h3>
+                            <p class="text-xs text-slate-400">Ringkasan statistik agregat per wilayah Kanwil untuk disajikan kepada pimpinan.</p>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-slate-900 text-slate-400 uppercase text-[10px]">
+                                <tr>
+                                    <th class="p-3">Wilayah Kanwil</th>
+                                    <th class="p-3 text-center">UPT Melapor</th>
+                                    <th class="p-3 text-center">Pelarian</th>
+                                    <th class="p-3 text-center">Perkara Baru</th>
+                                    <th class="p-3 text-center">Gangguan Kamtib</th>
+                                    <th class="p-3 text-center">Total Kejadian</th>
+                                    <th class="p-3 text-center">Status Sah Final</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableRekapExecBody" class="divide-y divide-slate-700">
+                                <tr><td colspan="7" class="p-3 text-center text-slate-500">Belum ada data tersedia.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TABEL DETAIL BERKAS MASUK DENGAN PRATINJAU -->
+                <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl space-y-4">
+                    <h3 class="text-sm font-bold text-slate-200 border-b border-slate-700 pb-3">Daftar Berkas Masuk & Rincian Data Utuh</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-xs text-slate-300">
                             <thead class="bg-slate-900 text-slate-400 uppercase text-[10px]">
@@ -285,28 +349,18 @@
                                     <th class="p-3">UPT & Kanwil</th>
                                     <th class="p-3">Jenis Laporan</th>
                                     <th class="p-3">Periode</th>
-                                    <th class="p-3">Status Otorisasi</th>
+                                    <th class="p-3">Volume Data</th>
+                                    <th class="p-3">Status Validasi</th>
                                     <th class="p-3 text-center">Aksi / Rincian Data</th>
                                 </tr>
                             </thead>
                             <tbody id="tableSajianBody" class="divide-y divide-slate-700">
-                                <tr><td colspan="5" class="p-3 text-center text-slate-500">Belum ada data tersedia.</td></tr>
+                                <tr><td colspan="6" class="p-3 text-center text-slate-500">Belum ada data tersedia.</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- CHARTS VISUALISASI -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl">
-                        <h4 class="text-xs font-bold text-slate-200 mb-4">Distribusi Status Validasi Laporan</h4>
-                        <div class="h-56"><canvas id="chartStatus"></canvas></div>
-                    </div>
-                    <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl">
-                        <h4 class="text-xs font-bold text-slate-200 mb-4">Volume Laporan Per Jenis Kamtib</h4>
-                        <div class="h-56"><canvas id="chartJenis"></canvas></div>
-                    </div>
-                </div>
             </div>
 
         </div>
@@ -343,8 +397,10 @@
 
         let currentUser = null;
         let cachedFilterData = [];
-        let chartStatusInst = null;
+        let chartTrendInst = null;
         let chartJenisInst = null;
+
+        const MONTH_MAP = { "Januari":1, "Februari":2, "Maret":3, "April":4, "Mei":5, "Juni":6, "Juli":7, "Agustus":8, "September":9, "Oktober":10, "November":11, "Desember":12 };
 
         window.addEventListener('DOMContentLoaded', () => {
             initLoginDropdowns();
@@ -679,7 +735,7 @@
 
         function initFilterDropdowns() {
             const select = document.getElementById('filterKanwil');
-            select.innerHTML = '<option value="ALL">-- Seluruh Indonesia --</option>';
+            select.innerHTML = '<option value="ALL">-- Seluruh Indonesia (Nasional) --</option>';
             Object.keys(FULL_UPT_DATABASE).forEach(k => {
                 const opt = document.createElement('option');
                 opt.value = k;
@@ -688,40 +744,149 @@
             });
         }
 
+        // FUNGSI UTAMA AGREGASI & SAJIAN DATA EKSEKUTIF PIMPINAN
         async function renderSajianDashboard() {
             const { data } = await _supabase.from('laporan_kamtib').select('*');
             if (!data) return;
 
-            cachedFilterData = data;
+            const fKanwil = document.getElementById('filterKanwil').value;
+            const fPeriode = document.getElementById('filterPeriodeMode').value;
+            const fTahun = document.getElementById('filterTahun').value;
+            const fJenis = document.getElementById('filterJenis').value;
 
-            document.getElementById('statTotal').innerText = data.length;
-            document.getElementById('statDraft').innerText = data.filter(d => d.status === 'SUBMITTED_KA_UPT').length;
-            document.getElementById('statKanwil').innerText = data.filter(d => d.status === 'APPROVED_KA_UPT').length;
-            document.getElementById('statDitjenpas').innerText = data.filter(d => d.status === 'APPROVED_KANWIL').length;
-            document.getElementById('statSah').innerText = data.filter(d => d.status === 'VERIFIED_FINAL').length;
+            // 1. FILTERING DATA
+            let filtered = data.filter(item => {
+                const json = item.isi_data_jsonb || {};
+                
+                // Filter Kanwil
+                if (fKanwil !== 'ALL' && json.kanwil !== fKanwil) return false;
+                
+                // Filter Tahun
+                if (fTahun !== 'ALL' && json.tahun !== fTahun) return false;
 
-            const tbody = document.getElementById('tableSajianBody');
-            if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="p-3 text-center text-slate-500">Belum ada data tersedia.</td></tr>';
+                // Filter Jenis
+                if (fJenis !== 'ALL' && item.jenis_laporan !== fJenis) return false;
+
+                // Filter Periode (Semester / Bulan)
+                const monthNum = MONTH_MAP[json.bulan] || 0;
+                if (fPeriode === 'SEM1' && (monthNum < 1 || monthNum > 6)) return false;
+                if (fPeriode === 'SEM2' && (monthNum < 7 || monthNum > 12)) return false;
+                if (fPeriode === 'BULAN_SEPT' && json.bulan !== 'September') return false;
+
+                return true;
+            });
+
+            cachedFilterData = filtered;
+
+            // 2. HITUNG KPI AGREGAT DARI ISI DATA EXCEL & FORM
+            let sumKejadian = 0;
+            let countPelarian = 0;
+            let countPerkara = 0;
+            let countGangguan = 0;
+
+            filtered.forEach(item => {
+                const json = item.isi_data_jsonb || {};
+                const rowsCount = (json.metode === 'EXCEL_PARSED' && json.total_rows) ? json.total_rows : 1;
+                sumKejadian += rowsCount;
+
+                if (item.jenis_laporan === 'PELARIAN') countPelarian += rowsCount;
+                if (item.jenis_laporan === 'PERKARA_BARU') countPerkara += rowsCount;
+                if (item.jenis_laporan === 'GANGGUAN_KAMTIB') countGangguan += rowsCount;
+            });
+
+            document.getElementById('statTotalKejadian').innerText = sumKejadian;
+            document.getElementById('statTotalPelarian').innerText = countPelarian;
+            document.getElementById('statTotalPerkara').innerText = countPerkara;
+            document.getElementById('statTotalGangguan').innerText = countGangguan;
+            document.getElementById('statSahFinal').innerText = filtered.filter(d => d.status === 'VERIFIED_FINAL').length;
+
+            // 3. TABEL REKAPITULASI MATRIKS WILAYAH / EKSEKUTIF
+            renderExecMatrixTable(filtered);
+
+            // 4. TABEL DAFTAR BERKAS INDIVIDUAL
+            renderDetailListTable(filtered);
+
+            // 5. VISUALISASI GRAFIK EKSEKUTIF
+            renderExecCharts(filtered);
+        }
+
+        function renderExecMatrixTable(filteredData) {
+            const tbody = document.getElementById('tableRekapExecBody');
+            
+            // Agregasi per Kanwil
+            const matrixMap = {};
+            Object.keys(FULL_UPT_DATABASE).forEach(k => {
+                matrixMap[k] = { uptMelapor: new Set(), pelarian: 0, perkara: 0, gangguan: 0, total: 0, sah: 0 };
+            });
+
+            filteredData.forEach(item => {
+                const json = item.isi_data_jsonb || {};
+                const kanwil = json.kanwil || 'Lainnya';
+                if (!matrixMap[kanwil]) {
+                    matrixMap[kanwil] = { uptMelapor: new Set(), pelarian: 0, perkara: 0, gangguan: 0, total: 0, sah: 0 };
+                }
+
+                const rowsCount = (json.metode === 'EXCEL_PARSED' && json.total_rows) ? json.total_rows : 1;
+                matrixMap[kanwil].uptMelapor.add(json.upt);
+                matrixMap[kanwil].total += rowsCount;
+
+                if (item.jenis_laporan === 'PELARIAN') matrixMap[kanwil].pelarian += rowsCount;
+                if (item.jenis_laporan === 'PERKARA_BARU') matrixMap[kanwil].perkara += rowsCount;
+                if (item.jenis_laporan === 'GANGGUAN_KAMTIB') matrixMap[kanwil].gangguan += rowsCount;
+                if (item.status === 'VERIFIED_FINAL') matrixMap[kanwil].sah += 1;
+            });
+
+            const keys = Object.keys(matrixMap).filter(k => matrixMap[k].total > 0);
+
+            if (keys.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="p-3 text-center text-slate-500">Tidak ada data rekapitulasi sesuai filter.</td></tr>';
                 return;
             }
 
-            tbody.innerHTML = data.map(item => {
+            tbody.innerHTML = keys.map(k => {
+                const d = matrixMap[k];
+                return `
+                    <tr class="hover:bg-slate-800 transition">
+                        <td class="p-3 font-bold text-slate-200">Kanwil ${k}</td>
+                        <td class="p-3 text-center font-mono text-blue-300 font-bold">${d.uptMelapor.size} UPT</td>
+                        <td class="p-3 text-center font-mono text-rose-400 font-bold">${d.pelarian}</td>
+                        <td class="p-3 text-center font-mono text-amber-400 font-bold">${d.perkara}</td>
+                        <td class="p-3 text-center font-mono text-purple-400 font-bold">${d.gangguan}</td>
+                        <td class="p-3 text-center font-mono text-emerald-400 font-black text-sm">${d.total}</td>
+                        <td class="p-3 text-center">
+                            <span class="bg-emerald-900/60 text-emerald-300 border border-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">${d.sah} Dokumen Sah</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderDetailListTable(filteredData) {
+            const tbody = document.getElementById('tableSajianBody');
+            if (filteredData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="p-3 text-center text-slate-500">Belum ada berkas data tersedia.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredData.map(item => {
                 const json = item.isi_data_jsonb || {};
                 let badge = '<span class="bg-yellow-900/50 text-yellow-300 px-2 py-0.5 rounded text-[10px]">Draf UPT</span>';
                 if (item.status === 'APPROVED_KA_UPT') badge = '<span class="bg-purple-900/50 text-purple-300 px-2 py-0.5 rounded text-[10px]">ACC Ka UPT</span>';
                 if (item.status === 'APPROVED_KANWIL') badge = '<span class="bg-cyan-900/50 text-cyan-300 px-2 py-0.5 rounded text-[10px]">Sah Kanwil</span>';
                 if (item.status === 'VERIFIED_FINAL') badge = '<span class="bg-emerald-900/50 text-emerald-300 px-2 py-0.5 rounded text-[10px] font-bold">Sah Final Pusat</span>';
 
+                const vol = json.metode === 'EXCEL_PARSED' ? `📄 Excel (${json.total_rows || 0} Baris)` : '📝 Form Isian';
+
                 return `
                     <tr class="hover:bg-slate-800">
                         <td class="p-3 font-semibold text-slate-200">${json.upt || 'UPT'}<br><span class="text-[10px] text-slate-500">${json.kanwil || '-'}</span></td>
                         <td class="p-3 font-bold text-blue-400">${item.jenis_laporan}</td>
                         <td class="p-3 text-slate-300">${json.bulan || '-'} ${json.tahun || ''}</td>
+                        <td class="p-3 font-mono text-slate-400 text-[11px]">${vol}</td>
                         <td class="p-3">${badge}</td>
                         <td class="p-3 text-center space-x-1">
                             <button onclick="viewReportDetail('${item.id}')" class="bg-blue-900/60 hover:bg-blue-800 text-blue-200 border border-blue-700 px-2 py-1 rounded text-[10px] font-bold">
-                                🔍 Lihat Data
+                                🔍 Lihat Data Utuh
                             </button>
                             <button onclick="cetakStempelQR('${item.id}', '${json.upt}', '${item.jenis_laporan}', '${json.bulan} ${json.tahun}', '${item.status}')" class="bg-slate-700 hover:bg-slate-600 text-blue-300 border border-slate-600 px-2 py-1 rounded text-[10px] font-bold">
                                 🖨️ QR
@@ -730,11 +895,8 @@
                     </tr>
                 `;
             }).join('');
-
-            renderCharts(data);
         }
 
-        // FUNGSI MEMBACA ISI EXCEL / FORM NARRATIVE SECARA UTUH
         async function viewReportDetail(id) {
             const { data, error } = await _supabase.from('laporan_kamtib').select('*').eq('id', id).single();
             if (error || !data) { alert('Gagal memuat rincian data laporan.'); return; }
@@ -801,6 +963,7 @@
                 "JENIS LAPORAN": item.jenis_laporan,
                 "BULAN": item.isi_data_jsonb.bulan || "-",
                 "TAHUN": item.isi_data_jsonb.tahun || "-",
+                "TOTAL KEJADIAN": (item.isi_data_jsonb.metode === 'EXCEL_PARSED' && item.isi_data_jsonb.total_rows) ? item.isi_data_jsonb.total_rows : 1,
                 "METODE INPUT": item.isi_data_jsonb.metode || "FORM",
                 "STATUS VALIDASI": item.status,
                 "WAKTU UPDATE": new Date(item.created_at).toLocaleString('id-ID')
@@ -808,8 +971,8 @@
 
             const worksheet = XLSX.utils.json_to_sheet(exportRows);
             const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap_Kamtib");
-            XLSX.writeFile(workbook, `Rekapitulasi_SIPANGKAS_${new Date().toISOString().slice(0,10)}.xlsx`);
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Matriks_Rekapitulasi");
+            XLSX.writeFile(workbook, `Rekapitulasi_Matriks_SIPANGKAS_${new Date().toISOString().slice(0,10)}.xlsx`);
         }
 
         function cetakStempelQR(id, upt, jenis, periode, status) {
@@ -874,42 +1037,54 @@
             `);
         }
 
-        function renderCharts(dataList) {
-            const ctxStatus = document.getElementById('chartStatus').getContext('2d');
-            const ctxJenis = document.getElementById('chartJenis').getContext('2d');
+        function renderExecCharts(filteredData) {
+            const ctxTrend = document.getElementById('chartTrendMonth').getContext('2d');
+            const ctxJenis = document.getElementById('chartJenisProp').getContext('2d');
 
-            if (chartStatusInst) chartStatusInst.destroy();
+            if (chartTrendInst) chartTrendInst.destroy();
             if (chartJenisInst) chartJenisInst.destroy();
 
-            chartStatusInst = new Chart(ctxStatus, {
-                type: 'doughnut',
+            // Hitung tren per bulan (Jan-Des)
+            const monthsName = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            const monthlyCounts = Array(12).fill(0);
+
+            filteredData.forEach(item => {
+                const json = item.isi_data_jsonb || {};
+                const mIdx = (MONTH_MAP[json.bulan] || 1) - 1;
+                const rowsCount = (json.metode === 'EXCEL_PARSED' && json.total_rows) ? json.total_rows : 1;
+                monthlyCounts[mIdx] += rowsCount;
+            });
+
+            chartTrendInst = new Chart(ctxTrend, {
+                type: 'bar',
                 data: {
-                    labels: ['Draf UPT', 'Proses Kanwil', 'Proses Ditjenpas', 'Sah Final'],
+                    labels: monthsName,
                     datasets: [{
-                        data: [
-                            dataList.filter(d => d.status === 'SUBMITTED_KA_UPT').length,
-                            dataList.filter(d => d.status === 'APPROVED_KA_UPT').length,
-                            dataList.filter(d => d.status === 'APPROVED_KANWIL').length,
-                            dataList.filter(d => d.status === 'VERIFIED_FINAL').length
-                        ],
-                        backgroundColor: ['#f59e0b', '#a855f7', '#06b6d4', '#10b981']
+                        label: 'Jumlah Kejadian Kamtib',
+                        data: monthlyCounts,
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 6
                     }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
             });
 
+            let cPelarian = 0, cPerkara = 0, cGangguan = 0;
+            filteredData.forEach(item => {
+                const json = item.isi_data_jsonb || {};
+                const rowsCount = (json.metode === 'EXCEL_PARSED' && json.total_rows) ? json.total_rows : 1;
+                if (item.jenis_laporan === 'PELARIAN') cPelarian += rowsCount;
+                if (item.jenis_laporan === 'PERKARA_BARU') cPerkara += rowsCount;
+                if (item.jenis_laporan === 'GANGGUAN_KAMTIB') cGangguan += rowsCount;
+            });
+
             chartJenisInst = new Chart(ctxJenis, {
-                type: 'bar',
+                type: 'doughnut',
                 data: {
                     labels: ['Pelarian', 'Perkara Baru', 'Gangguan Kamtib'],
                     datasets: [{
-                        label: 'Volume Laporan',
-                        data: [
-                            dataList.filter(d => d.jenis_laporan === 'PELARIAN').length,
-                            dataList.filter(d => d.jenis_laporan === 'PERKARA_BARU').length,
-                            dataList.filter(d => d.jenis_laporan === 'GANGGUAN_KAMTIB').length
-                        ],
-                        backgroundColor: '#3b82f6'
+                        data: [cPelarian, cPerkara, cGangguan],
+                        backgroundColor: ['#f43f5e', '#f59e0b', '#a855f7']
                     }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
